@@ -1,9 +1,126 @@
+###########################################################################
+## ---------------------------------------------------------------------  #
+##  Scripts for CURRENNT						  #
+## ---------------------------------------------------------------------  #
+###########################################################################
+##                         Author: Xin WANG                               #
+##                         Contact: wangxin@nii.ac.jp                     #
+###########################################################################
+
+## ----------------------- MESSAGE  ------------------------------------  #
+I use the scripts to train systems for speech synthesis. Thus, this set of
+scripts originally contained features adopted for specific task (e.g. MLPG
+for generating the acoustic feature trajectory, vocoder, RMSE calculation)
+
+In this version, vocoder, speech generation and RMSE calculation are removed. 
+
+Although the target feature of the data set in EXAMPLE contains delta and 
+delta-delta components, the script will directly output the static component. 
+Be careful if you want to plug in MLPG.
+
+At last, I only test this on the server of my group (I can't find another
+server with all required packages installed in NII). And, the code is
+dirty !
+
+## ----------------------- REQUIREMENTS--------------------------------  #
+1. CURRENNT ToolKit, modified version by me
+   1.1 netcdf http://www.unidata.ucar.edu/software/netcdf/
+   1.2 Boost  (headers and compiled library) http://www.boost.org
+   1.3 CUDA > 6.5 (I modified CURRENNT for CUDA > 6.5, see
+       http://sourceforge.net/p/currennt/discussion/general/thread/df6eeece/
+       http://sourceforge.net/p/currennt/discussion/general/thread/e10ef414/)
+   ...
+   Follow the CURRENNT/README instruction to install it.
+
+2. a lite Python toolkit (pyTools),  provided by me
+   2.1 Cython (to compile binary interface)
+   2.2 Scipy and Numpy 
+
+## ----------------------- USAGE   ------------------------------------  #
+
+---- For EXAMPLE:
+1. terminal: ~$ export PYTHONPATH=PATH_TO_PYTOOLS:$PYTHONPATH
+2. terminal: ~$ cd PATH_TO_THE_SCRIPTS
+3. terminal: ***$ perl 001_RUN.pl CONFIGPOOLS/config_***.pm
+4. check the printed information (a lots of) on the screen. You should see
+   
+   """
+   Generating features to ***
+   ==================================================================
+    --- All Done ---  at ***
+   ==================================================================
+   """
+5. terminal: ***$ perl 001_RUN.pl CONFIGPOOLS/config_***.pm 1
+
+The last step will print all the commands executed in step 4.
 
 
-Usage:
+---- For system training on your own data:
+Download the package again, and check the clean EXAMPLE directory carefully.
+Basically, that's what you need:
 
-NOTE:
-1. step.4 for generating acoustic features and wavform synthesizing requires additional tools
-   for HTS. Check Utilities/Synthesis.pl for more details.
-   If you just want to generate output features from NN model, turned $genWav=0 and $mlpgFlag=0
-   in Step4 of config.pm.
+1. DATA: directory for training data
+   1.1 data_config.py: configuration on the training data. 
+       		       Follow the EXAMPLE/DATA/data_config.py and prepare
+
+   1.2 *.scp: 	       lists of paths to your training data
+       		       (both input and output to the neural network)
+
+2. TESTDATA: directory for test data
+   2.1 data_config.py: configuration on the training data. 
+       		       Follow the EXAMPLE/TESTDATA/data_config.py and prepare
+
+   2.2 *.scp: 	       lists of paths to the test data 
+       		       (only input to the network)
+
+3. MODEL: the directory for neural network training 
+   3.1 config.cfg:     configuration for network training (for CURRENNT)
+
+   3.2 config_syn.cfg: configuration used during generation (for CURRENNT)
+
+   3.3 network.jsn:    network structure  
+
+   3.4 MDN, Highway, word vectors require additional configuration files
+
+       3.4.1 EXAMPLE/MODEL_MDN/createMDNConfig.py: 
+       	     script to generate the configuration of the MDN layer
+
+       3.4.2 EXAMPLE/MODEL_DNN_WEIGHT/createWeightMask.py: 
+       	     script to generate the weight mask
+
+Besides, you also need
+4. config_***.pm:	the control panel on the operation of your system.
+   			please check CONFIGPOOLS/config_***.pm
+
+
+---- For example:
+If I want to train a MDN network on my own data, I will:
+
+1. In DATA/directory
+   1.1 prepare *.scp
+   1.2 prepare data_config.py
+
+2. In TESTDATA/directory
+   2.1 prepare *.scp
+   2.2 prepare data_config.py
+
+3. In MODEL
+   3.1 prepare config.cfg, config_syn.cfg
+   3.2 prepare network.jsn
+   3.3 for MDN, 
+       3.3.1 prepare createMDNConfig.py
+       3.3.2 python createMDNConfig.py to get mdn.config
+   3.4 for weight mask
+       3.4.1 prepare createWeightMask.py
+       3.4.2 python createWeightMask.py to get weightMask
+   
+   3.5 check network.jsn is compatible with mdn.config or
+       weightMask
+   
+4. Prepare CONFIGPOOLS/config.pm    
+5. perl 001_RUN.pl CONFIGPOOLS/config.pm
+
+## ----------------------- AT LAST   ------------------------------------  #
+There are many options in scripts and CURRENNT without instructions. 
+I will add instructions later.
+

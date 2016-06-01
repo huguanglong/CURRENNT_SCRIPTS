@@ -1,0 +1,53 @@
+###########################################################################
+## ---------------------------------------------------------------------  #
+##  Scripts for CURRENNT						  #
+## ---------------------------------------------------------------------  #
+###########################################################################
+##                         Author: Xin WANG                               #
+##                         Contact: wangxin@nii.ac.jp                     #
+###########################################################################
+
+## ----------------------- MESSAGE  ------------------------------------  #
+I use the scripts to train systems for speech synthesis. Thus, this set of
+scripts originally contained features adopted for specific task (e.g. MLPG
+for generating the acoustic feature trajectory, vocoder)
+
+In this version, vocoder and MLPG part are removed. Although the target 
+feature of the data set in EXAMPLE contains delta and delta-delta components,
+the script will directly output the static component. Be careful if you want 
+to plug in MLPG.
+
+At last, I only test this on the server of my group (I can't find another
+server with all required packages installed in NII). And, the code is
+dirty !
+
+## ----------------------- REQUIREMENTS--------------------------------  #
+1. CURRENNT ToolKit, modified version by me
+   1.1 netcdf http://www.unidata.ucar.edu/software/netcdf/
+   1.2 Boost  (headers and compiled library) http://www.boost.org
+   1.3 CUDA > 6.5 (I modified CURRENNT for CUDA > 6.5, see
+       http://sourceforge.net/p/currennt/discussion/general/thread/df6eeece/
+       http://sourceforge.net/p/currennt/discussion/general/thread/e10ef414/)
+   ...
+   Follow the CURRENNT/README instruction to install it.
+
+2. a lite Python toolkit,   provided by me
+   2.1 Cython
+   2.2 Scipy and Numpy
+
+3. 
+
+## ----------------------- USAGE   ------------------------------------  #
+
+For EXAMPLE:
+
+1. terminal: ~$ export PYTHONPATH=PATH_TO
+
+
+Usage:
+
+NOTE:
+1. step.4 for generating acoustic features and wavform synthesizing requires additional tools
+   for HTS. Check Utilities/Synthesis.pl for more details.
+   If you just want to generate output features from NN model, turned $genWav=0 and $mlpgFlag=0
+   in Step4 of config.pm.

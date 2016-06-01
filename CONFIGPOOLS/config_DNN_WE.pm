@@ -65,7 +65,7 @@ $SYNWAVE   = 0;
 
 # ------- step5. Calculating RMSE ----------------
 # Whether to calculate RMSE?
-$CALRMSE = 1;
+$CALRMSE = 0;
 
 
 ################################################################
