@@ -1,0 +1,20 @@
+Usage:
+For the first time
+1. the lines in lab.scp, bap.scp, lf0.scp, vuv.scp, mgc.scp in EXAMPLE/DATA, TESTDATA to the data in EXAMPLE/RAWDATA
+2. just run >> perl 001_RUN.pl config.pm
+
+If you want to know each step, set "$DEBUG     = 1;" in config.pm,
+and then run >> perl 001_RUN.pl config.pm
+
+Then, 
+1. configure config.pm according to the intruction in config.pm
+2. run >> perl 000_PRE.pl config.pm to prepare initial folders
+   follow the printed output, modify the files accordingly
+3. run >> perl 001_RUN.pl config.pm to run the steps specified
+   in config.pm
+
+NOTE:
+1. step.4 for generating acoustic features and wavform synthesizing requires additional tools
+   for HTS. Check Utilities/Synthesis.pl for more details.
+   If you just want to generate output features from NN model, turned $genWav=0 and $mlpgFlag=0
+   in Step4 of config.pm.
