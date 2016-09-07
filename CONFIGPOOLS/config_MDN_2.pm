@@ -23,7 +23,6 @@ $flagCLEAN = 1;
 #   just specify fullpath separately)
 my $DEMOROOT = sprintf("%s/EXAMPLE",getcwd);
 
-
 # any info you want to say ?
 $CONFIG_ADDINFO = "Ignore the synthetic waveforms";
 $CONFIG_ADDINFO = "$CONFIG_ADDINFO\n This script is only for testing";
@@ -35,9 +34,9 @@ $CONFIG_ADDINFO = "$CONFIG_ADDINFO\n Use more data for speech synthesis";
 ### ------------- switch -------------------------
 # ------- step1. Prepare the training data -------
 # according to the data_config.py and *.scp, generate all.scp* ?
-$FLAG_SCP = 1;
+$FLAG_SCP = 0;
 # according to all.scp*, package the data ?
-$PREP_DAT = 1;    
+$PREP_DAT = 0;    
 
 # ------- step2. training ---------------- -------
 # train the system right after step1? (you check the generated data first
@@ -47,9 +46,9 @@ $TRAINSYS = 1;
 
 # ------- step3. prepare test data ------- -------
 # according to the data_config.py and *.scp, generate the all.scp*?
-$TEST_FLAG_SCP  = 1;			
+$TEST_FLAG_SCP  = 0;			
 # according to all.scp*, package the data ?
-$TEST_PREP_DAT  = 1;		       
+$TEST_PREP_DAT  = 0;		       
 
 # ------- step4. generate the test data--- -------
 # generating the DAT using forward propogation
@@ -79,14 +78,14 @@ $CALRMSE = 0;
 
 # -- input and outputs
 # directory for *.scp, data_config.py and all.scp 
-@datadir = ("$DEMOROOT/DATA_WE");
+@datadir = ("$DEMOROOT/DATA");
 
 # where the model will be put? 
-@sysdir  = ("$DEMOROOT/MODEL_DNN_WE");
+@sysdir  = ("$DEMOROOT/MODEL_MDN/MDN");
 
 # directory to store generated data.nc* (data.mv will be in @datadir)
 #   using local disk to generate data.nc*, or it will be slow
-@buffdir = ("$DEMOROOT/DATA_WE");
+@buffdir = ("$DEMOROOT/DATA");
 
 # -- configs
 # path to the bmat2nc (set $dataPack if you don't want to use $bmat2nc)
@@ -131,15 +130,15 @@ $currennt = "";
 
 ## -- input and output
 # where is the data_config.py for test data ?
-@testdatadir = ("$DEMOROOT/TESTDATA_WE");
+@testdatadir = ("$DEMOROOT/TESTDATA");
 
 # whereis the mean variance file (data.mv from step1)
 #   it should be in 
-@mvpath = ("$DEMOROOT/DATA_WE/data.mv");
+@mvpath = ("$DEMOROOT/DATA/data.mv");
 
 # directory to store generated data.nc* (data.mv will be in @datadir)
 #   using local disk to generate data.nc*, or it will be slow
-@testbuffdir = ("$DEMOROOT/TESTDATA_WE");
+@testbuffdir = ("$DEMOROOT/TESTDATA");
 
 
 # -- configs
@@ -187,19 +186,19 @@ $currennt = "";
 # if the input data requires external vectors
 # $weExt 1/0, turn on this part 
 # @weFlag, (1/0, 1/0), specify the flag for each @sysdir
-$weExt    = 1;
+$weExt    = 0;
 @weFlag   = (1); 
 
 # @wedir, array of paths to the external we vectors for each @sysdir
 #    the length of $wedir[$i] should be equal to $networkdir[$i]
 #
-@wedir1 = dupVec("$DEMOROOT/RAWDATA/we.webank_s", 1);
+@wedir4 = dupVec("word_projections-80.bin", 5);
 @wedir    = (\@wedir1); 
 
 # weDim, the dimension of the we vector
 $weDim    = 80;
 # weIDDim, which dimension is the we index in input data?
-$weIDDim  = 382;
+$weIDDim  = 295;
 
 ## -- get intermediate output                                                        
 # tap output from intermediate layer?                                                
@@ -215,7 +214,7 @@ $tapOutput = 0;    # 0: not use this tapOutput
 #   -1.0:generating the MDN parameters 
 # Note, the length of @mdnGenPara should be identical to @networkdir
 # Example: @mdnGenPara  = (0.001, 0.01); 
-@mdnGenPara  = (); 
+@mdnGenPara  = (0.001); 
 
 ## -- use mvPath
 # The default is that testdata.nc will include mean and variance

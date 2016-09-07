@@ -9,15 +9,18 @@ import sys, os
 import numpy as np
 from ioTools import readwrite as py_rw
 
-def kmixPara(dim, k):
+def kmixPara(dim, k, tieVariance):
     if k>0:
-        return k*(dim+2)
+        if tieVariance:
+            return k*(dim+2)
+        else:
+            return k*(dim+dim+1)
     else:
         return dim
 
-## ------ Configuration
+## ------ Configuration ---------------------------------
 # MDNType: specify the type of Mixture density units
-#   -1:  softmax
+#   -1:  softmax (currently not supported)
 #   0:   sigmoid
 #   N>0: N mixture of Gaussian
 #
@@ -29,25 +32,34 @@ def kmixPara(dim, k):
 #   of the target feature vector. I want to use a 4-mixture and 1-mixture
 #   components: 
 #      MDNType = [4, 1]
-mix  = 4
-MDNType       = [mix,]
-
-
-# Dimension
-dim  = 259     # for convenience
+#   
+#   Personally, I use the configure below.
+#   In DATA/data_config.py, it says outScpFile = ['mgc.scp', 'vuv.scp', 'lf0.scp', 'bap.scp']  
+#   Thus, I set the MDNType accordingly [2, 0, 2, 1], where 
+#   I use 2 mixture for MGC, sigmoid for U/V., 2 mixture for LF0, 1 mixture for BAP
+MDNType  = [2, 0, 2, 1]
 
 # MDNTargetDim
 #   specify the dimension range of each MDN component corresponding
 #   to the target feature vector
 #   For example, I use 4-mixture Gaussian to describe the 1-259th
 #   dimension of the data
-MDNTargetDim  = [[0,dim],]
+#   
+#   In accord with MDNType above, 
+#   I need to specify the dimension range for MGC, VU, Lf0, BAP
+#   As DATA/data_config.py says outDim= [dmgcdim, vuvdim, dlf0dim, dbapdim]
+#   and dmgcdim = 180, vuvdim = 1, dlf0dim = 3, dbapdim = 75, I need to set:
+MDNTargetDim  = [[0,180], [180, 181],[181, 184], [184, 259]]
 
-# OutputFile
+# tieVariance
+#   do you want to share the variance across dimensions ?
+#   I don't
+tieVariance   = 0
+
+# OutputFile (default)
 mdnconfig    = './mdn.config';
 
-
-## ------ Run
+## ------ Run ---------------------------------
 # MDNNNOutDim (automatically generated. No need specify)
 #   specify the dimension range of each MDN component corresponding 
 #   to the output of neural network (or, input to MDN layer)
@@ -61,7 +73,7 @@ mdnconfig    = './mdn.config';
 bias = 0
 MDNNNOutDim = []
 for idx, x in enumerate(MDNType):
-    temp = kmixPara(MDNTargetDim[idx][1]-MDNTargetDim[idx][0], x)
+    temp = kmixPara(MDNTargetDim[idx][1]-MDNTargetDim[idx][0], x, tieVariance)
     MDNNNOutDim.append([bias, bias+temp])
     bias = temp+bias
 print MDNNNOutDim
@@ -74,7 +86,7 @@ tmp = 0
 for idx, mdntype in enumerate(MDNType):
     mdntarDim = MDNTargetDim[idx]
     mdnoutDim = MDNNNOutDim[idx]
-    tmp1 = (mdntarDim[1]-mdntarDim[0]+2)*mdntype
+    tmp1 = kmixPara(mdntarDim[1]-mdntarDim[0], mdntype, tieVariance)
     tmp2 = (mdnoutDim[1]-mdnoutDim[0])
         
     if mdntype > 0:

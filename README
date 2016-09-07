@@ -5,6 +5,7 @@
 ###########################################################################
 ##                         Author: Xin WANG                               #
 ##                         Contact: wangxin@nii.ac.jp                     #
+##                         Date:  2016-05-30                              #
 ###########################################################################
 
 ## ----------------------- MESSAGE  ------------------------------------  #
@@ -15,33 +16,41 @@ for generating the acoustic feature trajectory, vocoder, RMSE calculation)
 In this version, vocoder, speech generation and RMSE calculation are removed. 
 
 Although the target feature of the data set in EXAMPLE contains delta and 
-delta-delta components, the script will directly output the static component. 
-Be careful if you want to plug in MLPG.
+delta-delta components, the script will directly use the static component as
+output. 
+If you want to use in MLPG, prepare the script by yourself.
 
 At last, I only test this on the server of my group (I can't find another
-server with all required packages installed in NII). And, the code is
+server with all required packages installed in NII). And, the code may be
 dirty !
 
 ## ----------------------- REQUIREMENTS--------------------------------  #
 1. CURRENNT ToolKit, modified version by me
+   CURRENNT requires: 
    1.1 netcdf http://www.unidata.ucar.edu/software/netcdf/
    1.2 Boost  (headers and compiled library) http://www.boost.org
    1.3 CUDA > 6.5 (I modified CURRENNT for CUDA > 6.5, see
        http://sourceforge.net/p/currennt/discussion/general/thread/df6eeece/
        http://sourceforge.net/p/currennt/discussion/general/thread/e10ef414/)
    ...
-   Follow the CURRENNT/README instruction to install it.
+   Follow the CURRENNT/README instruction to install CURRENNT.
 
-2. a lite Python toolkit (pyTools),  provided by me
-   2.1 Cython (to compile binary interface)
+2. a small Python toolkit (pyTools),  prepared by me
+   this Python toolkit requires
+   2.1 Cython (to compile a binary interface)
    2.2 Scipy and Numpy 
 
 ## ----------------------- USAGE   ------------------------------------  #
 
----- For EXAMPLE:
+---- For running the EXAMPLE:
 1. terminal: ~$ export PYTHONPATH=PATH_TO_PYTOOLS:$PYTHONPATH
-2. terminal: ~$ cd PATH_TO_THE_SCRIPTS
-3. terminal: ***$ perl 001_RUN.pl CONFIGPOOLS/config_***.pm
+
+2. select one example configuration file from CONFIGPOOLS,
+   go to line 120,
+   add the path to CURRENNT as $currennt = "PATH_TO_CURRENNT";
+   
+3. terminal: ~$ perl 001_RUN.pl CONFIGPOOLS/config_***.pm
+  
 4. check the printed information (a lots of) on the screen. You should see
    
    """
@@ -50,12 +59,62 @@ dirty !
     --- All Done ---  at ***
    ==================================================================
    """
-5. terminal: ***$ perl 001_RUN.pl CONFIGPOOLS/config_***.pm 1
 
-The last step will print all the commands executed in step 4.
+5. If you want to see the commandline for each step, add '1' as the argument
+   it will print all the commands executed in step 4.   
+   terminal: ~$ perl 001_RUN.pl CONFIGPOOLS/config_***.pm 1
+
+6. List of examples:
+   config_DNN.pm:         the deep feedforward neural network
+                          for RNN example, please see the help of CURRENNT
+                          and modify the network.jsn
+
+   config_DNN_WEIGHT.pm   the deep feedforward neural network with weight mask.
+   			  the weight mask set part of the network connection as zero.
+                          I use this weight mask to create multi-stream network.
+			  please use EXAMPLE/MODEL_DNN_WEIGHT/createWeightMask.py to create
+                          the weight mask. please check /EXAMPLE/MODEL_DNN_WEIGHT/config.cfg
+                          on the option to use weight mask
+
+   config_DNN_WE.pm:      the deep feedforward neural network with word vectors as input
+                          note, the word vectors are stored in a binary data file 
+                          EXAMPLE/RAWDATA/we.webank_s, the dimension is 80.
+			  also, please check /EXAMPLE/MODEL_DNN_WE/README to see
+                          the instruction on writing the config.cfg file
+   
+   config_HIGHWAY.pm:     the highway network.
+                          It is similar to DNN network, except the network.jsn.
+                          please read EXAMPLE/MODEL_HIGHWAY/README to know how to 
+                          create the network.jsn for highway network
+                          
+			  residual network, a specical case of highway can also be created
+                          by simply creating the network.jsn
+
+   config_MDN_1.pm:       
+   config_MDN_2.pm:       the mixture density network (MDN)
+                          I normally initialize MDN based on a trained RNN or DNN network.
+                          It is not suggested to directly train MDN from scratch.
+			  config_MDN_1.pm: train the DNN network
+   			  config_MDN_2.pm: train the MDN based on the MDN
+			  please check EXAMPLE/MODEL_MDN/README
+   
+   config_ARRMDN.pm       the Auto-regressive Recurrent Mixture Density Network
+                          please check EXAMPLE/MODEL_ARRMDN/README
+
+
+7 The example consists of several steps:
+  7.1. packing the training data into netCDF (.nc) files
+    1.1 built the .scp for each kind of input/output feature
+    1.2 build .nc files
+    1.3 calculate mean, variance
+    1.4 normalize the data
+  7.2. train the network
+  7.3. packing the test data
+  7.4. generate the data
 
 
 ---- For system training on your own data:
+Please make sure that all the binary data are float32, little-endian.
 Download the package again, and check the clean EXAMPLE directory carefully.
 Basically, that's what you need:
 
@@ -119,6 +178,7 @@ If I want to train a MDN network on my own data, I will:
    
 4. Prepare CONFIGPOOLS/config.pm    
 5. perl 001_RUN.pl CONFIGPOOLS/config.pm
+
 
 ## ----------------------- AT LAST   ------------------------------------  #
 There are many options in scripts and CURRENNT without instructions. 

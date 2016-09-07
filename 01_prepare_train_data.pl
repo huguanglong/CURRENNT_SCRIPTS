@@ -78,7 +78,7 @@ if ($FLAG_SCP) {
     }else{
 	die "Can't find $prjdir/data_config.py";
     }
-    SelfSystem("rm $prjdir/*.info");
+    SelfSystem("rm -f $prjdir/*.info");
     $command = "python ./utilities/PrePareData.py $prjdir/data_config.py $prjdir";
     SelfSystem($command);
 

@@ -34,9 +34,9 @@ $CONFIG_ADDINFO = "$CONFIG_ADDINFO\n Use more data for speech synthesis";
 ### ------------- switch -------------------------
 # ------- step1. Prepare the training data -------
 # according to the data_config.py and *.scp, generate all.scp* ?
-$FLAG_SCP = 1;
+$FLAG_SCP = 0;
 # according to all.scp*, package the data ?
-$PREP_DAT = 1;    
+$PREP_DAT = 0;    
 
 # ------- step2. training ---------------- -------
 # train the system right after step1? (you check the generated data first
@@ -46,9 +46,9 @@ $TRAINSYS = 1;
 
 # ------- step3. prepare test data ------- -------
 # according to the data_config.py and *.scp, generate the all.scp*?
-$TEST_FLAG_SCP  = 1;			
+$TEST_FLAG_SCP  = 0;			
 # according to all.scp*, package the data ?
-$TEST_PREP_DAT  = 1;		       
+$TEST_PREP_DAT  = 0;		       
 
 # ------- step4. generate the test data--- -------
 # generating the DAT using forward propogation
@@ -81,7 +81,7 @@ $CALRMSE = 0;
 @datadir = ("$DEMOROOT/DATA");
 
 # where the model will be put? 
-@sysdir  = ("$DEMOROOT/MODEL_MDN");
+@sysdir  = ("$DEMOROOT/MODEL_ARRMDN/RMDN");
 
 # directory to store generated data.nc* (data.mv will be in @datadir)
 #   using local disk to generate data.nc*, or it will be slow
@@ -114,9 +114,9 @@ $dataPack = "./utilities/PackData.py";
 # -- configs
 # use existing network and config.cfg if exist  (default = 1)
 $useOldConfig = 1; 
+
 # path to the current tool
-#$currennt = "/home/smg/wang/TOOL/CURRENNT_220/build/currennt"; 
-$currennt = "/home/smg/wang/TEMP/code/CURRENNT/CURRENNT_0405/build_220/currennt"; 
+$currennt = ""; 
 # ------------------------------------------------
 
 

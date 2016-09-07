@@ -18,7 +18,7 @@
 			"type": "feedforward_logistic"
 		},
 		{
-			"size": 1044,
+			"size": 888,
 			"name": "output",
 			"bias": 1.000000,
 			"type": "feedforward_identity"

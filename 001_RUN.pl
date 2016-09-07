@@ -49,8 +49,8 @@ if ($TRAINSYS){
 	    print "Old config.cfg and network cleared\n";
 	    print "   remember to set $useOldConfig=0 after";
 	    print "   you craft new config.cfg and network.jsn";
-	    SelfSystem("rm $prj/config.cfg");
-	    SelfSystem("rm $prj/network.jsn");
+	    SelfSystem("rm -f $prj/config.cfg");
+	    SelfSystem("rm -f $prj/network.jsn");
 	}
 	if (-e "$prj/config.cfg" && -e "$prj/network.jsn"){
 	    chdir($prj);
@@ -309,7 +309,7 @@ if ($GENDATA || $SPLITDATA || $SYNWAVE || $CALRMSE){
 			push @RMSEFeatDir, $odir;
 		    }
 		    if ($GENDATA || $SPLITDATA || $SYNWAVE){
-			if ($flagCLEAN){SelfSystem("rm $odir/*");}
+			if ($flagCLEAN){SelfSystem("rm -f $odir/*");}
 			unless(-e "$ordir"){mkdir $odir;}
 			# only iterate over @ncDataList
 			foreach my $ncfile (@ncDataList){
@@ -349,7 +349,7 @@ if($CALRMSE){
     print_time("Calculating RMSE");
     my $i=0;
     SelfSystem("mkdir ./tmp");
-    SelfSystem("rm ./tmp/*");
+    SelfSystem("rm -f ./tmp/*");
     foreach my $temp (@RMSEFeatDir){
 	if ($i < scalar @RMSEFeatDir){
 	    my $name = $RMSEFeatDir[$i];

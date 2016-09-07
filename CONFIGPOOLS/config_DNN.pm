@@ -114,9 +114,9 @@ $dataPack = "./utilities/PackData.py";
 # -- configs
 # use existing network and config.cfg if exist  (default = 1)
 $useOldConfig = 1; 
+
 # path to the current tool
-#$currennt = "/home/smg/wang/TOOL/CURRENNT_220/build/currennt"; 
-$currennt = "/home/smg/wang/TEMP/code/CURRENNT/CURRENNT_0405/build_220/currennt"; 
+$currennt = ""; 
 # ------------------------------------------------
 
 
