@@ -26,8 +26,8 @@ flushThreshold = cfg.flushThreshold
 scpdir = sys.argv[2]
 
 
-def PrepareScp(InScpFile, OutScpFile, inDim, outDim, allScp, datadir):
-    """ Make the file scp
+def PrepareScp(InScpFile, OutScpFile, inDim, outDim, allScp, datadir, txtScp, txtDim):
+    """ Count the number of frames of each input and output file.
     """
     assert len(InScpFile)==len(inDim), \
         "Unequal length of input scp and in dim"
@@ -47,6 +47,10 @@ def PrepareScp(InScpFile, OutScpFile, inDim, outDim, allScp, datadir):
     # Pre-process the input file
     #  check the duration of each input file
     #  keep the shortest duration of input files for one entry
+    print "Note: Different feature files of one utterance may contain different number of frames."
+    print "Trim value shows how many frames are discarded in order to match the shortest file."
+    print "Large Trim value indicates that the dimension in data_config.py or the extracted feature"
+    print "file may be ill. Please check it carefully if it happens!"
     print "Processing the input file"
     for scpFile, dim, scpIndex in zip(InScpFile, inDim, xrange(len(InScpFile))):
         fPtr = open(scpFile,'r')
@@ -60,6 +64,7 @@ def PrepareScp(InScpFile, OutScpFile, inDim, outDim, allScp, datadir):
             if scpIndex==0:
                 numSeque = numSeque + 1
             fileline = line.strip()
+            
             # only check for relative path
             if not os.path.isfile(fileline):
                 fileline = datadir + os.path.sep + fileline                
@@ -68,7 +73,8 @@ def PrepareScp(InScpFile, OutScpFile, inDim, outDim, allScp, datadir):
             if scpIndex==0:                         # loading lab file
                 fileLabBuffer.append(fileline)
                 if len(fileline) >  maxSeqLe:
-                    maxSeqLe = len(fileline)            
+                    maxSeqLe = len(fileline)
+            
             fileInBuffer.append(fileline)           # check the time step of file
             
             if scpIndex>0 and fileline==fileLabBuffer[fileCtr+1]:
@@ -118,7 +124,7 @@ def PrepareScp(InScpFile, OutScpFile, inDim, outDim, allScp, datadir):
                 fileline = line.strip()
                 if len(line.strip())==0:
                     break
-
+                
                 # only check for relative path
                 if not os.path.isfile(fileline):
                     fileline = datadir + os.path.sep + fileline
@@ -126,7 +132,6 @@ def PrepareScp(InScpFile, OutScpFile, inDim, outDim, allScp, datadir):
 
                 #print line                
                 fileOutBuffer.append(fileline)
-
                 tempFrame = funcs.Bytes(fileline, dim)/np.dtype(dataType).itemsize
                 if seqLenBuffer[fileCtr+1]>tempFrame:
                     addiFrame = seqLenBuffer[fileCtr+1]-tempFrame
@@ -143,6 +148,20 @@ def PrepareScp(InScpFile, OutScpFile, inDim, outDim, allScp, datadir):
             fPtr.close()
         assert len(fileOutBuffer)-1==(len(outDim)*numSeque), "Unequal file output numbers"
 
+    # if text scp exists, check
+    if len(txtScp) > 0:
+        textBuffer = []
+        with open(txtScp, 'r') as filePtr:
+            for i, fileline in enumerate(filePtr):
+                filename = fileline.rstrip('\n')
+                name1 = os.path.splitext(os.path.basename(filename))[0]
+                name2 = os.path.splitext(os.path.basename(fileLabBuffer[i+1]))[0]
+                assert name1==name2, "textScpFile unmatch %s, %s, %d-th line" % (name1, name2, i)
+                textBuffer.append(filename)
+        assert len(textBuffer)==(len(fileLabBuffer)-1), "textScpFile, unmatched length"
+    else:
+        textBuffer = []
+        
     # Write the scp for packaging data
     scpFileCtr = 1
     fileCtr = 0
@@ -169,6 +188,13 @@ def PrepareScp(InScpFile, OutScpFile, inDim, outDim, allScp, datadir):
             outputline = outputline + " %d %s" % (outDim[j], fileOutBuffer[index])
         fileCtr = fileCtr + 1
         fPtr.write(outputline)
+        
+        if len(textBuffer) > 0:
+            assert os.path.isfile(textBuffer[i]), "Can't find %s" % (textBuffer[i])
+            itemNum = funcs.Bytes(textBuffer[i], txtDim)/np.dtype(dataType).itemsize
+            temp = " %d %d %s" % (itemNum, txtDim, textBuffer[i])
+            fPtr.write(temp)
+
         fPtr.write("\n")
         flagLock = False
         
@@ -196,7 +222,7 @@ def PrepareScp(InScpFile, OutScpFile, inDim, outDim, allScp, datadir):
 def PreProcess(tmp_inDim, tmp_outDim, tmp_inScpFile, tmp_outScpFile, tmp_inMask, 
     tmp_outMask, scpdir):
     """ 
-    Generating the Mask.txt
+    Generating the Mask.txt for feature extraction
     
     """
     assert len(tmp_inDim)==len(tmp_inScpFile), "Unequal inDim and inScpFile"
@@ -242,7 +268,7 @@ def PreProcess(tmp_inDim, tmp_outDim, tmp_inScpFile, tmp_outScpFile, tmp_inMask,
 
 
 def normMaskGen(inDim, outDim, normMask):
-    """Generating the normMask for packaging the data
+    """ Generating the normMask for packaging the data
     """
     assert len(inDim)+len(outDim)==len(normMask), "Unequal length normMask and inDim outDim"
     inDim = np.array(inDim)
@@ -270,10 +296,48 @@ def normMaskGen(inDim, outDim, normMask):
     print "Mask shape:"+str(dimVec.shape)
     funcs.write_raw_mat(dimVec, scpdir + os.path.sep + 'normMask')
     print "Writing norMask to %s " % (scpdir + os.path.sep + 'normMask')
+
+
+def normMethodGen(inDim, outDim, inNormIdx, outNormIdx, scpdir):
+    """ Generating the idx file for normalization method
+        input:  inNormIdx and outNormIdx: [normMethod, [parameter_1], ...]
+        output: 
+    """
+    inNormIdxData  = np.arange(0, sum(inDim),  dtype=np.int32)
+    outNormIdxData = np.arange(0, sum(outDim), dtype=np.int32)
+    
+    for configIn in inNormIdx:
+        assert len(configIn)==3, 'inNormIdx element should be [start_d, end_d, h] format'
+        if configIn[2]>=0:
+            assert configIn[2]<sum(inDim), 'h in [start_d, end_d, h] is larger than input dimension'
+            assert configIn[0]>=0, 'start_d in [start_d, end_d, h] is below 0'
+            assert configIn[0]<sum(inDim), 'start_d in [start_d, ...] is larger than input dimension'
+            assert configIn[1]>=0, 'start_e in [start_d, end_d, h] is below 0'
+            assert configIn[1]<sum(inDim), 'start_e in [start_d, ...] is larger than input dimension'
+            inNormIdxData[configIn[0]:configIn[1]] = configIn[2]
+        else:
+            inNormIdxData[configIn[0]:configIn[1]] = configIn[2]
+
+    for configIn in outNormIdx:
+        assert len(configIn)==3, 'inNormIdx element should be [start_d, end_d, h] format'
+        if configIn[2]>=0:
+            assert configIn[2]<sum(outDim), 'h in [start_d, end_d, h] is larger than output dim'
+            assert configIn[0]>=0, 'start_d in [start_d, end_d, h] is below 0'
+            assert configIn[0]<sum(outDim), 'start_d in [start_d, ...] is larger than output dim'
+            assert configIn[1]>=0, 'start_e in [start_d, end_d, h] is below 0'
+            assert configIn[1]<sum(outDim), 'start_e in [start_d, ...] is larger than input dim'
+            outNormIdxData[configIn[0]:configIn[1]] = configIn[2]
+        else:
+            outNormIdxData[configIn[0]:configIn[1]] = configIn[2]
+
+    normIdxData = np.append(inNormIdxData, outNormIdxData,)
+    funcs.write_raw_mat( normIdxData, scpdir + os.path.sep +  'normMethod', 'i4', 'l')
+    #funcs.write_raw_mat(outNormIdxData, scpdir + os.path.sep + 'outNormMethod', 'i4', 'l')
     
 
 if __name__ == "__main__":
     
+    # Generating the feature mask file
     print "Generating the Scp File"
     if 'inMask' in dir(cfg) and 'outMask' in dir(cfg):
         print "Generating the Mask file"
@@ -286,18 +350,46 @@ if __name__ == "__main__":
         outDim = cfg.outDim
         inScpFile = []
         outScpFile = []
-        for file in cfg.inScpFile:
-            inScpFile.append(scpdir + os.path.sep + file)
-        for file in    cfg.outScpFile:
-            outScpFile.append(scpdir + os.path.sep + file)
+        for fileName in cfg.inScpFile:
+            inScpFile.append(scpdir + os.path.sep + fileName)
+        for fileName in    cfg.outScpFile:
+            outScpFile.append(scpdir + os.path.sep + fileName)
     
+    # Generating the normlization mask file
     if 'normMask' in dir(cfg):
         print "Generating normMask"
         normMaskGen(cfg.inDim, cfg.outDim, cfg.normMask)
     else:
         print "No normMask configuration"
-        os.system("rm ./normMask")
+        if os.path.isfile("./normMask"):
+            os.system("rm ./normMask")
+
+    # Generating the normaization method idx
+    if 'inNormIdx' in dir(cfg) or 'outNormIdx' in dir(cfg):
+        if not 'inNormIdx' in dir(cfg):
+            inNormIdx = []
+        else:
+            inNormIdx = cfg.inNormIdx
+        if not 'outNormIdx' in dir(cfg):
+            outNormIdx = []
+        else:
+            outNormIdx = cfg.outNormIdx
+        normMethodGen(cfg.inDim, cfg.outDim, inNormIdx, outNormIdx, scpdir)
+    else:
+        print "No normMethod configuration"
+        if os.path.isfile("./normMethod"):
+            os.system("rm ./normMethod")
             
+    # Generating the txt file (optional)
+    if 'textScpFile' in dir(cfg) and 'textDim' in dir(cfg):
+        print "Found input text file"
+        txtScp = scpdir + os.path.sep + cfg.textScpFile
+        txtDim = cfg.textDim
+    else:
+        txtScp = ''
+        txtDim = 0
+
+    # Generating the scp files for data packaging
     allScp = scpdir + os.path.sep + cfg.allScp
 
     if os.path.exists(allScp + ".info"):
@@ -305,9 +397,8 @@ if __name__ == "__main__":
          FrameBuf, numUttBuf, nameBuf] = pickle.load(open(allScp+".info", "rb"))
     else:
         [numSeque, numFrame, maxSeqLe, 
-         FrameBuf, numUttBuf, nameBuf] = PrepareScp(inScpFile, outScpFile, 
-                                                    inDim, outDim, allScp,
-                                                    scpdir)
+         FrameBuf, numUttBuf, nameBuf] = PrepareScp(inScpFile, outScpFile, inDim, outDim, allScp,
+                                                    scpdir, txtScp, txtDim)
         pickle.dump([numSeque, numFrame, maxSeqLe, FrameBuf, numUttBuf, nameBuf], 
                     open(allScp+".info", "wb"))
     

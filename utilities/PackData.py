@@ -56,7 +56,13 @@ if __name__ == "__main__":
         normMask = sys.argv[9]
         if normMask =='None':
             normMask = None
-
+    
+    if len(sys.argv)<11:
+        normMethod = None
+    else:
+        normMethod = sys.argv[10]
+        if normMethod == 'None':
+            normMethod =  None
         
     if step1==1:
             filePtr2 = open(datascp, 'w') 
@@ -87,7 +93,7 @@ if __name__ == "__main__":
 
     if step2==1:
         try:
-            nc.meanStd(datascp, mv)
+            nc.meanStd(datascp, mv, normMethod)
         except:
             print "Unexpected error:", sys.exc_info()[0]
             print traceback.extract_tb(sys.exc_info()[-1])

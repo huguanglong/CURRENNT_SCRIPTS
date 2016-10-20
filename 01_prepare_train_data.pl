@@ -29,11 +29,6 @@ $buffadd = $ARGV[1];    # the buffer directory, .nc data will be stored here
 
 require($ARGV[2]) || die "Can't find config.pm";
 
-if ($ARGV[3] > 0){
-    print "DEBUG mode\n";
-    $DEBUG = 1;
-}
-
 # reserved options. No need to modify them
 $randomDir = "/home/smg/wang/PROJ/WE/DNNAM/DATA/nancy/random_list";
 $numUtt      = 13000;    # number of utterance to be included
@@ -78,7 +73,7 @@ if ($FLAG_SCP) {
     }else{
 	die "Can't find $prjdir/data_config.py";
     }
-    SelfSystem("rm -f $prjdir/*.info");
+    SelfSystem("rm $prjdir/*.info");
     $command = "python ./utilities/PrePareData.py $prjdir/data_config.py $prjdir";
     SelfSystem($command);
 
@@ -107,6 +102,14 @@ if ($PREP_DAT) {
         $normMaskBin = "";
         print "Not using norm mask\n";
     }
+
+    if ( -e "$prjdir/normMethod") {
+	print "Using the normMethod $prjdir/normMethod\n";
+	$normMethod = "$prjdir/normMethod";
+    }else{
+	$normMethod = "None";
+	print "Not using norm method\n";
+    }
     
     if ($dataPack ne ""){
 	$command = "python ./utilities/PackData.py $prjdir/all.scp $prjdir/data.mv";
@@ -121,51 +124,55 @@ if ($PREP_DAT) {
 	}else{
 	    $command = "$command None";
 	}
-	
+	if ($normMethod ne ""){
+	    $command = "$command $normMethod";
+	}else{
+	    $command = "$command None";
+	}
 	SelfSystem($command);
     }else{
 
-    if ($flagMultiNC) {
-        $scpFile = "$prjdir/all.scp";
-        $dataScp = "$prjdir/data.scp";
-        open( IN_STR,  "$scpFile" );
-        open( OUT_STR, ">$dataScp" );
-        $count = 1;
-        while (<IN_STR>) {
-            chomp();
-            $file = $_;
-            $name = basename($file);
-            $name =~ s/all.scp/data.nc/g;
-            if ( $maskfile eq "" ) {
-                $commandline = "$bmat2nc $file $buffadd/$name";
-            }
-            else {
-                $commandline = "$bmat2nc $file $buffadd/$name $maskfile";
-            }
-            print "$commandline\n";
-            SelfSystem($commandline);
-            print OUT_STR "$buffadd/$name\n";
-            $count = $count + 1;
-        }
-        close(IN_STR);
-        close(OUT_STR);
+	if ($flagMultiNC) {
+	    $scpFile = "$prjdir/all.scp";
+	    $dataScp = "$prjdir/data.scp";
+	    open( IN_STR,  "$scpFile" );
+	    open( OUT_STR, ">$dataScp" );
+	    $count = 1;
+	    while (<IN_STR>) {
+		chomp();
+		$file = $_;
+		$name = basename($file);
+		$name =~ s/all.scp/data.nc/g;
+		if ( $maskfile eq "" ) {
+		    $commandline = "$bmat2nc $file $buffadd/$name";
+		}
+		else {
+		    $commandline = "$bmat2nc $file $buffadd/$name $maskfile";
+		}
+		print "$commandline\n";
+		SelfSystem($commandline);
+		print OUT_STR "$buffadd/$name\n";
+		$count = $count + 1;
+	    }
+	    close(IN_STR);
+	    close(OUT_STR);
+	    
+	    $commandline = "$ncnorm $dataScp + $prjdir/data.mv";
+	    
+	    #print "$commandline\n";
+	    SelfSystem($commandline);
 
-        $commandline = "$ncnorm $dataScp + $prjdir/data.mv";
-
-        #print "$commandline\n";
-        SelfSystem($commandline);
-
-        $count = $count - 1;
-        open( IN_STR, "$dataScp" );
-        while (<IN_STR>) {
-            chomp();
-            $commandline = "$ncnorm $_ $prjdir/data.mv";
-
-            #print "$commandline\n";
-            SelfSystem($commandline);
-            $count = $count - 1;
-        }
-    }
+	    $count = $count - 1;
+	    open( IN_STR, "$dataScp" );
+	    while (<IN_STR>) {
+		chomp();
+		$commandline = "$ncnorm $_ $prjdir/data.mv";
+		
+		#print "$commandline\n";
+		SelfSystem($commandline);
+		$count = $count - 1;
+	    }
+	}
     }
 }
 
