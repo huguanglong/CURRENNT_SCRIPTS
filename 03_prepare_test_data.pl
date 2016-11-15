@@ -115,7 +115,13 @@ if ($TEST_PREP_DAT){
         $normMaskBin = "";
         print "Not using norm mask";
     }
-
+    if ( -e "$prjdir/normMethod") {
+	print "Using the normMethod $prjdir/normMethod\n";
+	$normMethod = "$prjdir/normMethod";
+    }else{
+	$normMethod = "None";
+	print "Not using norm method\n";
+    }
     if (-e "$prjdir/all.scp"){
     }else{
 	die "Can't find all.scp";
@@ -137,6 +143,12 @@ if ($TEST_PREP_DAT){
 	}else{
 	    $command = "$command None";
 	}
+	if ($normMethod ne ""){
+	    $command = "$command $normMethod";
+	}else{
+	    $command = "$command None";
+	}
+
 	SelfSystem($command);
 
     }else{

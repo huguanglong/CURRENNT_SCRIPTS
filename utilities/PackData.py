@@ -84,7 +84,7 @@ if __name__ == "__main__":
                     except:
                         print "Unexpected error:", sys.exc_info()[0]
                         print traceback.extract_tb(sys.exc_info()[-1])
-                        raise Exception("*** Fail to norm %s" % (line))
+                        raise Exception("*** Fail to pack data %s" % (line))
                         flagDataValid = False
             
                     if flagDataValid is True:
@@ -98,7 +98,7 @@ if __name__ == "__main__":
             print "Unexpected error:", sys.exc_info()[0]
             print traceback.extract_tb(sys.exc_info()[-1])
             print "*** Fail to generate %s" % (mv)
-            raise Exception("*** Fail to norm %s" % (line))
+            raise Exception("*** Fail to get mean and std. %s" % (line))
 
     else:
         print "skip generating mv file"

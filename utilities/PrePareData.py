@@ -228,17 +228,20 @@ def PreProcess(tmp_inDim, tmp_outDim, tmp_inScpFile, tmp_outScpFile, tmp_inMask,
     assert len(tmp_inDim)==len(tmp_inScpFile), "Unequal inDim and inScpFile"
     assert len(tmp_inDim)==len(tmp_inMask), "Unequal inDim and tmp_inMask"
     assert len(tmp_outDim)==len(tmp_outMask), "Unequal outDim and tmp_outMask"
-    inDim = []
-    outDim = []
-    inScpFile = []
+    inDim      = []
+    outDim     = []
+    inScpFile  = []
     outScpFile = []
+    validInDim = []
+    validOutDim= []
     filePtr = open(scpdir + os.path.sep + 'mask.txt', 'w')
     for index, fileMask in enumerate(tmp_inMask):
         if len(fileMask)==0:
             inDim.append(tmp_inDim[index])
             inScpFile.append(scpdir+ os.path.sep + tmp_inScpFile[index])
-            tempLine = "0 %d\n" % tmp_inDim[index]
+            tempLine   = "0 %d\n" % tmp_inDim[index]
             filePtr.write(tempLine)
+            validInDim.append(tmp_inDim[index])
         else:
             assert len(fileMask)%2==0, "inMask should have even number of data"
             for index2, tmpDim in enumerate(fileMask[0::2]):
@@ -246,14 +249,16 @@ def PreProcess(tmp_inDim, tmp_outDim, tmp_inScpFile, tmp_outScpFile, tmp_inMask,
                 inScpFile.append(scpdir+ os.path.sep + tmp_inScpFile[index])
                 tempLine = "%d %d\n" % (fileMask[2*index2], fileMask[2*index2+1])
                 filePtr.write(tempLine)
+                validInDim.append((fileMask[2*index2+1] - fileMask[2*index2]))
                 
     for index, fileMask in enumerate(tmp_outMask):
         if len(fileMask)==0:
             outDim.append(tmp_outDim[index])
             if len(tmp_outScpFile)>0:
                 outScpFile.append(scpdir+ os.path.sep + tmp_outScpFile[index])
-            tempLine = "0 %d\n" % tmp_outDim[index]
+            tempLine    = "0 %d\n" % tmp_outDim[index]
             filePtr.write(tempLine)
+            validOutDim.append(tmp_OutDim[index])
         else:
             assert len(fileMask)%2==0, "inMask should have even number of data"
             assert len(tmp_outScpFile)>0, "mask is used but no output file scp"
@@ -262,8 +267,9 @@ def PreProcess(tmp_inDim, tmp_outDim, tmp_inScpFile, tmp_outScpFile, tmp_inMask,
                 outScpFile.append(scpdir+ os.path.sep + tmp_outScpFile[index])
                 tempLine = "%d %d\n" % (fileMask[2*index2], fileMask[2*index2+1])
                 filePtr.write(tempLine) 
+                validOutDim.append(fileMask[2*index2+1] - fileMask[2*index2])
     filePtr.close()
-    return inDim, inScpFile, outDim, outScpFile
+    return inDim, inScpFile, outDim, outScpFile, validInDim, validOutDim
 
 
 
@@ -308,29 +314,29 @@ def normMethodGen(inDim, outDim, inNormIdx, outNormIdx, scpdir):
     
     for configIn in inNormIdx:
         assert len(configIn)==3, 'inNormIdx element should be [start_d, end_d, h] format'
+        assert configIn[0]>=0, 'start_d in [start_d, end_d, h] is below 0'
+        assert configIn[0]<=sum(inDim), 'start_d in [start_d, ...] is larger than input dimension'
+        assert configIn[1]>=0, 'start_e in [start_d, end_d, h] is below 0'
+        assert configIn[1]<=sum(inDim), 'start_e in [start_d, ...] is larger than input dimension'
         if configIn[2]>=0:
             assert configIn[2]<sum(inDim), 'h in [start_d, end_d, h] is larger than input dimension'
-            assert configIn[0]>=0, 'start_d in [start_d, end_d, h] is below 0'
-            assert configIn[0]<sum(inDim), 'start_d in [start_d, ...] is larger than input dimension'
-            assert configIn[1]>=0, 'start_e in [start_d, end_d, h] is below 0'
-            assert configIn[1]<sum(inDim), 'start_e in [start_d, ...] is larger than input dimension'
             inNormIdxData[configIn[0]:configIn[1]] = configIn[2]
         else:
             inNormIdxData[configIn[0]:configIn[1]] = configIn[2]
 
     for configIn in outNormIdx:
         assert len(configIn)==3, 'inNormIdx element should be [start_d, end_d, h] format'
+        assert configIn[0]>=0, 'start_d in [start_d, end_d, h] is below 0'
+        assert configIn[0]<=sum(outDim), 'start_d in [start_d, ...] is larger than output dim'
+        assert configIn[1]>=0, 'start_e in [start_d, end_d, h] is below 0'
+        assert configIn[1]<=sum(outDim), 'start_e in [start_d, ...] is larger than input dim'
         if configIn[2]>=0:
             assert configIn[2]<sum(outDim), 'h in [start_d, end_d, h] is larger than output dim'
-            assert configIn[0]>=0, 'start_d in [start_d, end_d, h] is below 0'
-            assert configIn[0]<sum(outDim), 'start_d in [start_d, ...] is larger than output dim'
-            assert configIn[1]>=0, 'start_e in [start_d, end_d, h] is below 0'
-            assert configIn[1]<sum(outDim), 'start_e in [start_d, ...] is larger than input dim'
             outNormIdxData[configIn[0]:configIn[1]] = configIn[2]
         else:
             outNormIdxData[configIn[0]:configIn[1]] = configIn[2]
 
-    normIdxData = np.append(inNormIdxData, outNormIdxData,)
+    normIdxData = np.append(inNormIdxData, outNormIdxData)
     funcs.write_raw_mat( normIdxData, scpdir + os.path.sep +  'normMethod', 'i4', 'l')
     #funcs.write_raw_mat(outNormIdxData, scpdir + os.path.sep + 'outNormMethod', 'i4', 'l')
     
@@ -341,13 +347,15 @@ if __name__ == "__main__":
     print "Generating the Scp File"
     if 'inMask' in dir(cfg) and 'outMask' in dir(cfg):
         print "Generating the Mask file"
-        [inDim, inScpFile, outDim, outScpFile] = PreProcess(
+        [inDim, inScpFile, outDim, outScpFile, valInDim, valOutDim] = PreProcess(
             cfg.inDim, cfg.outDim, cfg.inScpFile, cfg.outScpFile, 
             cfg.inMask, cfg.outMask, scpdir)
     else:
         print "No Mask configuration"
-        inDim = cfg.inDim
-        outDim = cfg.outDim
+        inDim    =  cfg.inDim
+        outDim   =  cfg.outDim
+        valInDim =  cfg.inDim
+        valOutDim=  cfg.outDim
         inScpFile = []
         outScpFile = []
         for fileName in cfg.inScpFile:
@@ -358,7 +366,7 @@ if __name__ == "__main__":
     # Generating the normlization mask file
     if 'normMask' in dir(cfg):
         print "Generating normMask"
-        normMaskGen(cfg.inDim, cfg.outDim, cfg.normMask)
+        normMaskGen(valInDim, valOutDim, cfg.normMask)
     else:
         print "No normMask configuration"
         if os.path.isfile("./normMask"):
@@ -374,7 +382,7 @@ if __name__ == "__main__":
             outNormIdx = []
         else:
             outNormIdx = cfg.outNormIdx
-        normMethodGen(cfg.inDim, cfg.outDim, inNormIdx, outNormIdx, scpdir)
+        normMethodGen(valInDim, valOutDim, inNormIdx, outNormIdx, scpdir)
     else:
         print "No normMethod configuration"
         if os.path.isfile("./normMethod"):
