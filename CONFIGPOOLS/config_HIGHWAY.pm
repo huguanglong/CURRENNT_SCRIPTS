@@ -116,7 +116,7 @@ $dataPack = "./utilities/PackData.py";
 $useOldConfig = 1; 
 
 # path to the current tool
-$currennt = ""; 
+$currennt = "currennt"; 
 # ------------------------------------------------
 
 

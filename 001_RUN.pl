@@ -239,7 +239,7 @@ if ($GENDATA || $SPLITDATA || $SYNWAVE || $CALRMSE){
 	    }
 	    
 	    my $mdnGenCommand = "NONE";
-	    if (defined @mdnGenPara){
+	    if (@mdnGenPara){
 		if (scalar @mdnGenPara > $i){
 		    my $tmpmdnGenPara = $mdnGenPara[$i];
 		    if ($tmpmdnGenPara eq "NONE"){

@@ -9,47 +9,47 @@
 ###########################################################################
 
 ## ----------------------- MESSAGE  ------------------------------------  #
-I use the scripts to train systems for speech synthesis. Thus, this set of
-scripts originally contained features adopted for specific task (e.g. MLPG
+I use the scripts to train networks for speech synthesis. Thus, this set of
+scripts originally contained features for specific task (e.g. MLPG
 for generating the acoustic feature trajectory, vocoder, RMSE calculation)
 
-In this version, vocoder, speech generation and RMSE calculation are removed. 
-
-Although the target feature of the data set in EXAMPLE contains delta and 
+However, module for vocoder, MLPG generation and RMSE calculation are removed. 
+(although the target feature of the data set in EXAMPLE contains delta and 
 delta-delta components, the script will directly use the static component as
-output. 
-If you want to use in MLPG, prepare the script by yourself.
+output. No MLPG generation is used here)
 
-At last, I only test this on the server of my group (I can't find another
-server with all required packages installed in NII). And, the code may be
-dirty !
+At last, I only test this on the server of my group.
+
+And, the code may be dirty !
 
 ## ----------------------- REQUIREMENTS--------------------------------  #
 1. CURRENNT ToolKit, modified version by me
    CURRENNT requires: 
    1.1 netcdf http://www.unidata.ucar.edu/software/netcdf/
    1.2 Boost  (headers and compiled library) http://www.boost.org
-   1.3 CUDA > 6.5 (I modified CURRENNT for CUDA > 6.5, see
+   1.3 CUDA > 6.5 (CURRENNT is modified  for CUDA > 6.5, according to
        http://sourceforge.net/p/currennt/discussion/general/thread/df6eeece/
        http://sourceforge.net/p/currennt/discussion/general/thread/e10ef414/)
    ...
    Follow the CURRENNT/README instruction to install CURRENNT.
 
-2. a small Python toolkit (pyTools),  prepared by me
-   this Python toolkit requires
+2. A small Python toolkit (pyTools) from my github
+   This toolkit requires
    2.1 Cython (to compile a binary interface)
    2.2 Scipy and Numpy 
 
 ## ----------------------- USAGE   ------------------------------------  #
 
 ---- For running the EXAMPLE:
-1. terminal: ~$ export PYTHONPATH=PATH_TO_PYTOOLS:$PYTHONPATH
 
-2. select one example configuration file from CONFIGPOOLS,
-   go to line 120,
-   add the path to CURRENNT as $currennt = "PATH_TO_CURRENNT";
+1. Aompile and add 'currennt' to your path. Check command below
+   terminal: ~$ currennt --list_devices 1
    
-3. terminal: ~$ perl 001_RUN.pl CONFIGPOOLS/config_***.pm
+2. Add PYTHONPATH to the python toolkit
+   terminal: ~$ export PYTHONPATH=PATH_TO_PYTOOLS:$PYTHONPATH
+
+3. Select one example configuration and run
+   terminal: ~$ perl 001_RUN.pl CONFIGPOOLS/config_***.pm
   
 4. check the printed information (a lots of) on the screen. You should see
    
@@ -133,9 +133,9 @@ Basically, that's what you need:
        		       (only input to the network)
 
 3. MODEL: the directory for neural network training 
-   3.1 config.cfg:     configuration for network training (for CURRENNT)
+   3.1 config.cfg:     configuration for network training (for currennt)
 
-   3.2 config_syn.cfg: configuration used during generation (for CURRENNT)
+   3.2 config_syn.cfg: configuration used during generation (for currennt)
 
    3.3 network.jsn:    network structure  
 
@@ -173,10 +173,10 @@ If I want to train a MDN network on my own data, I will:
        3.4.1 prepare createWeightMask.py
        3.4.2 python createWeightMask.py to get weightMask
    
-   3.5 check network.jsn is compatible with mdn.config or
-       weightMask
+   3.5 check network.jsn is compatible with mdn.config or weightMask
    
-4. Prepare CONFIGPOOLS/config.pm    
+4. Prepare CONFIGPOOLS/config.pm
+
 5. perl 001_RUN.pl CONFIGPOOLS/config.pm
 
 

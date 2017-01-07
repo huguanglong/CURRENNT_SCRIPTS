@@ -17,7 +17,9 @@ sys.path.append(os.path.dirname(sys.argv[1]))
 cfg = __import__(os.path.basename(sys.argv[1])[:-3])
 
 
-def SplitData(fileScp, fileDir2, fileDir, outputName, outDim, outputDelta, flagUseDelta, datamv, stdT=0.000001):
+def SplitData(fileScp,      fileDir2,  fileDir, 
+              outputName,   outDim,    outputDelta, 
+              flagUseDelta, datamv,    stdT=0.000001):
     
     filePtr = open(fileDir+os.path.sep+'gen.scp', 'w')
     if len(datamv) > 0 and os.path.isfile(datamv):
@@ -59,11 +61,12 @@ def SplitData(fileScp, fileDir2, fileDir, outputName, outDim, outputDelta, flagU
 if __name__ == "__main__":
     """ Split the generated .htk into multiple files
     """
-    outDim = cfg.outDim
-    outputName = cfg.outputName
-    outputDelta= cfg.outputDelta
-    fileDir = sys.argv[2]
+    outDim       = cfg.outDim
+    outputName   = cfg.outputName
+    outputDelta  = cfg.outputDelta
+    fileDir      = sys.argv[2]
     flagUseDelta = sys.argv[3]
+    
     if len(sys.argv)==5:
         # if case that I just want to utilize the .htk from fileDir2
         # .htk in fileDir2 will be split as written into fileDir
@@ -73,8 +76,17 @@ if __name__ == "__main__":
     
     datamv = sys.argv[5]
     assert os.path.isdir(fileDir), "can't not find " + fileDir
-    files = os.listdir(fileDir2)
+    files  = os.listdir(fileDir2)
     assert len(outDim)==len(outputName), "Output dim has unequal dimension as output Name"
     assert len(outDim)==len(outputDelta), "Output dim has unequal dimension as output Delta"
-
+    
+    if 'inMask' in dir(cfg) and 'outMask' in dir(cfg):
+        assert len(cfg.outMask) == len(cfg.outputName), "outMask uncompatible"
+        tempoutDim = []
+        for dim in cfg.outMask:
+            if len(dim)>0:
+                tempoutDim.append(dim[1] - dim[0])
+        if len(tempoutDim)>0:
+            outDim = tempoutDim
+    
     SplitData(files, fileDir2, fileDir, outputName, outDim, outputDelta, flagUseDelta, datamv)
