@@ -29,14 +29,17 @@ $buffadd = $ARGV[1];    # the buffer directory, .nc data will be stored here
 
 require($ARGV[2]) || die "Can't find config.pm";
 
-# reserved options. No need to modify them
-$randomDir = "/home/smg/wang/PROJ/WE/DNNAM/DATA/nancy/random_list";
+################################################
+# Unused options. No need to modify them
+$randomDir   = "";
 $numUtt      = 13000;    # number of utterance to be included
                          # if larger than total number, it will be total number
 $valUtt      = 500;      # number of validation set
 $flagMultiNC = 1;        # whether there are multiple nc files ?
-$RAND_SCP = 0;           # Reserved
-$VAL_DAT  = 0;           # Reserved
+$RAND_SCP    = 0;           # Reserved
+$VAL_DAT     = 0;           # Reserved
+################################################
+
 
 mkdir $buffadd, 0755;
 
@@ -73,13 +76,17 @@ if ($FLAG_SCP) {
     }else{
 	die "Can't find $prjdir/data_config.py";
     }
-    SelfSystem("rm $prjdir/*.info");
+    SelfSystem("rm -f $prjdir/*.info");
+    print_time("--- 1.1 generating scps ---");
     $command = "python ./utilities/PrePareData.py $prjdir/data_config.py $prjdir";
     SelfSystem($command);
-
+}else{
+    print_time("--- 1.1 skip generating scps ---");
 }
 
 if ($PREP_DAT) {
+    print_time("--- 1.2 package data ---");
+    print("======     configuration info  ======\n");
     if ( -e "$prjdir/all.scp" ){
     }else{
 	die "Can't find $prjdir/all.scp";
@@ -110,7 +117,7 @@ if ($PREP_DAT) {
 	$normMethod = "None";
 	print "Not using norm method\n";
     }
-    
+    print "\n\n";
     if ($dataPack ne ""){
 	$command = "python ./utilities/PackData.py $prjdir/all.scp $prjdir/data.mv";
 	if ($maskfile ne ""){
@@ -174,6 +181,8 @@ if ($PREP_DAT) {
 	    }
 	}
     }
+}else{
+    print_time("--- 1.2 skip packaging data ---");
 }
 
 if ($VAL_DAT) {

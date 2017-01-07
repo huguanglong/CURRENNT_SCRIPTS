@@ -53,7 +53,7 @@ require($ARGV[7]) || die "Can't find $ARGV[7]";
 
 # Process
 if ($GENDATA && $fgendata){
-    print "\n*** generating from NN network\n";
+    print_time("--- 4.1 generating from NN network ---");
     if (-e "$moddir/config_syn.cfg"){
     }else{
 	SelfSystem("cp ./utilities/config_syn.cfg $moddir/config_syn.cfg");
@@ -62,6 +62,7 @@ if ($GENDATA && $fgendata){
     $curdir = getcwd;
     chdir($moddir);
     print "Entering $moddir\n";
+    print "\n-------------------- CURRENNNT generating log ----------------\n";
     SelfSystem("cat ./config_syn.cfg");
     $command = "$currennt --options_file config_syn.cfg";
     $command = "$command --ff_input_file $input";
@@ -84,12 +85,15 @@ if ($GENDATA && $fgendata){
     }
     
     SelfSystem($command);
+    print "--------------------------------------------------------------\n";
     chdir($curdir);
     print "Entering $curdir\n";
+}else{
+    print_time("--- 4.1 skip generating from NN network ---");
 }
 
 if ($SPLITDATA && $fsplitdata){
-    print "\n*** splitting data\n";
+    print_time("--- 4.2 formmating output of NN to target data  ---");
     mkdir $outputdir;
     if (-e "$prjdir/data_config.py"){
 	
@@ -100,10 +104,12 @@ if ($SPLITDATA && $fsplitdata){
     $command = "$command $prjdir/data_config.py $outputdir";
     $command = "$command $mlpgFlag $outputdir2 $mvfile";
     SelfSystem($command);
+}else{
+    print_time("--- 4.2 skip formmating output of NN  ---");
 }
 
-if ($SYNWAVE && $fsynwave){	
-    print "\n*** generating the acoustic features\n";
+if ($SYNWAVE && $fsynwave){
+    print_time("--- 4.3 generating speech waveform  ---");
     # synthesis
     $batch = 1;
     while($batch <= $gennPara){
@@ -131,4 +137,6 @@ if ($SYNWAVE && $fsynwave){
     foreach $job (@nJobs){
 	waitpid($job, 0);
     }
+}else{
+    print_time("--- 4.3 skip generating speech waveform  ---");
 }

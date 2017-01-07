@@ -47,10 +47,11 @@ def PrepareScp(InScpFile, OutScpFile, inDim, outDim, allScp, datadir, txtScp, tx
     # Pre-process the input file
     #  check the duration of each input file
     #  keep the shortest duration of input files for one entry
-    print "Note: Different feature files of one utterance may contain different number of frames."
+    
+    print "\nNote: Different feature files of one utterance may contain different number of frames."
     print "Trim value shows how many frames are discarded in order to match the shortest file."
     print "Large Trim value indicates that the dimension in data_config.py or the extracted feature"
-    print "file may be ill. Please check it carefully if it happens!"
+    print "file may be ill. Please check it carefully if it happens!\n"
     print "Processing the input file"
     for scpFile, dim, scpIndex in zip(InScpFile, inDim, xrange(len(InScpFile))):
         fPtr = open(scpFile,'r')
@@ -344,7 +345,7 @@ def normMethodGen(inDim, outDim, inNormIdx, outNormIdx, scpdir):
 if __name__ == "__main__":
     
     # Generating the feature mask file
-    print "Generating the Scp File"
+    print "====== Generating the Scp File ======"
     if 'inMask' in dir(cfg) and 'outMask' in dir(cfg):
         print "Generating the Mask file"
         [inDim, inScpFile, outDim, outScpFile, valInDim, valOutDim] = PreProcess(
@@ -409,13 +410,17 @@ if __name__ == "__main__":
                                                     scpdir, txtScp, txtDim)
         pickle.dump([numSeque, numFrame, maxSeqLe, FrameBuf, numUttBuf, nameBuf], 
                     open(allScp+".info", "wb"))
-    
-    print "Number of utternaces: "+str(numSeque)
-    print "Number of frames: "+str(numFrame)
-    print "Max utterance lab length: "+str(maxSeqLe)
-    print "Generating: "+ str(nameBuf)
-    print "Number of frames per file: "+ str(FrameBuf)
+    print "\n======     Data statistics     ======"
+    print "Number of utternaces:          "+str(numSeque)
+    print "Number of frames:              "+str(numFrame)
+    print "Max utterance lab length:      "+str(maxSeqLe)
+    print "\n"
+    print "Generating scps to:            "
+    for x in nameBuf:
+        print "\t%s" % (x)
+    print "Number of frames per file:     "+ str(FrameBuf)
     print "Number of utterances per file: "+ str(numUttBuf)
+    print "\n"
     
     if len(nameBuf)>0:
         filePtr = open(allScp, 'w')

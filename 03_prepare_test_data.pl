@@ -62,6 +62,7 @@ if ($RAND_SCP){
 }
 
 if ($TEST_FLAG_SCP){
+    print_time("--- 3.1 generating scps for test data ---");
     # Delete the old *.info if new .scp is utilized
     SelfSystem("rm $prjdir/*.info");
     if(-e "$prjdir/data_config.py"){
@@ -96,11 +97,16 @@ if ($TEST_FLAG_SCP){
     }
     close(OUT_STR);
     close(IN_STR);
-    print "$prjdir/all.scp ad $prjdir/gen.scp have beeen generated\n";
+    print "---\n";
+    print "$prjdir/all.scp\n";
+    print "$prjdir/gen.scp\n";
+}else{
+    print_time("--- 3.1 skip generating scps for test data ---");
 }
 
 
 if ($TEST_PREP_DAT){
+    print_time("--- 3.2 package data for test set ---");
     if (-e "$prjdir/mask.txt"){
 	print "Using the mask file $prjdir/mask.txt\n";
 	$maskfile = "$prjdir/mask.txt";
@@ -181,5 +187,7 @@ if ($TEST_PREP_DAT){
 	    close(OUT_STR);		
 	}
     }
+}else{
+    print_time("--- 3.2 skip packaging data for test set ---");
 }
 

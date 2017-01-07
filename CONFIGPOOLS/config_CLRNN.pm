@@ -42,22 +42,22 @@ $PREP_DAT = 1;
 # train the system right after step1? (you check the generated data first
 #   if you data is correct, just set $FLAG_SCP and $PREP_DAT to 0 and 
 #   set $TRAINSYS =1 and run again
-$TRAINSYS = 1;
+$TRAINSYS = 0;
 
 # ------- step3. prepare test data ------- -------
 # according to the data_config.py and *.scp, generate the all.scp*?
-$TEST_FLAG_SCP  = 1;			
+$TEST_FLAG_SCP  = 0;			
 # according to all.scp*, package the data ?
-$TEST_PREP_DAT  = 1;		       
+$TEST_PREP_DAT  = 0;		       
 
 # ------- step4. generate the test data--- -------
 # generating the DAT using forward propogation
 #   (you may not if you want to use pre-genreated .htk)
-$GENDATA   = 1;
+$GENDATA   = 0;
 # split the .htk into acoustic features
 #   according to the configuration in data_config.py of 
 #   test data
-$SPLITDATA = 1;
+$SPLITDATA = 0;
 # generate the final acoustic features
 #   MLPG is conducted in this step.
 $SYNWAVE   = 0;		
@@ -78,14 +78,14 @@ $CALRMSE = 0;
 
 # -- input and outputs
 # directory for *.scp, data_config.py and all.scp 
-@datadir = ("$DEMOROOT/DATA");
+@datadir = ("$DEMOROOT/DATA_ZEROINPUT");
 
 # where the model will be put? 
-@sysdir  = ("$DEMOROOT/MODEL_DNN");
+@sysdir  = ("$DEMOROOT/MODEL_CLRNN_TOY");
 
 # directory to store generated data.nc* (data.mv will be in @datadir)
 #   using local disk to generate data.nc*, or it will be slow
-@buffdir = ("$DEMOROOT/DATA");
+@buffdir = ("$DEMOROOT/DATA_ZEROINPUT");
 
 # -- configs
 # path to the bmat2nc (set $dataPack if you don't want to use $bmat2nc)

@@ -101,6 +101,11 @@ And, the code may be dirty !
    config_ARRMDN.pm       the Auto-regressive Recurrent Mixture Density Network
                           please check EXAMPLE/MODEL_ARRMDN/README
 
+   config_CLRNN.pm        this script is only used to package the data for a toy
+   			  problem. After perl 001_RN.pl CONFIGPOOL/config_CLRNN.pm,
+			  ~$ cd EXAMPLE/MODEL_CLRNN_TOY
+			  ~$ sh 00_batch.sh
+			  
 
 7 The example consists of several steps:
   7.1. packing the training data into netCDF (.nc) files

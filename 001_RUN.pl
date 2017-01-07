@@ -23,19 +23,19 @@ if ($DEBUG==1){
 # Preparing the data
 if ($FLAG_SCP || $PREP_DAT){
     my $curdir = getcwd;
-    print_time("Start preparing the training data");
+    print_time("------- 1 Start preparing the training data -------");
     my $j = 0;
     foreach my $i (@datadir){
 	SelfSystem("perl 01_prepare_train_data.pl $i $buffdir[$j] $config");
 	$j += 1;
     }
 }else{
-    print_time("Skip preparing the training data");
+    print_time("------- 1 Skip preparing the training data -------");
 }
 
 # Train the system
 if ($TRAINSYS){
-    print_time("Training the model");
+    print_time("------- 2 Training the model -------");
     my $j = 0;
     my $curdir = getcwd;
     foreach my $i (@datadir){
@@ -58,7 +58,9 @@ if ($TRAINSYS){
 	    SelfSystem("cat ./config.cfg");
 	    print "\tPlease wait for several minutes.\n\t use nvidia-smi to inspect the activity of GPU\n";
 	    SelfSystem("$currennt --options_file config.cfg > log_train 2>&1");
+	    print "\n-------------------- CURRENNNT training log ----------------\n";
 	    SelfSystem("cat ./log_train");
+	    print "------------------------------------------------------------\n";
 	    chdir($curdir);
 	}else{
 	    SelfSystem("python 02_prepare_model.py $prj $buffdir[$j]");
@@ -69,12 +71,12 @@ if ($TRAINSYS){
 	$j += 1;
     }
 }else{
-    print_time("Skip model traininig");
+    print_time("------- 2 Skip model traininig -------");
 }
 
 # Generating the test data based on data.nc
 if ($TEST_FLAG_SCP || $TEST_PREP_DAT ) {
-    print_time("Start preparing the test data");
+    print_time("------- 3 Start preparing the test data -------");
     my $i = 0;
     unless(scalar @testdatadir == scalar @mvpath){
 	die "testdatadir is not equal in length as \@mvpath";
@@ -89,7 +91,7 @@ if ($TEST_FLAG_SCP || $TEST_PREP_DAT ) {
     }
 }else{
     
-    print_time("Skip preparing the test data");
+    print_time("------- 3 Skip preparing the test data -------");
 }
 
 
@@ -104,9 +106,9 @@ if ($GENDATA || $SPLITDATA || $SYNWAVE || $CALRMSE){
 	@RMSEFeatDir = ();
     }
     if ($GENDATA || $SPLITDATA || $SYNWAVE){
-	print_time("Start synthesizing the speech");
+	print_time("------- 4 Start synthesizing the speech -------");
     }else{
-	print_time("Get output dirs");
+	print_time("------- 4 Get output dirs -------");
     }
 
     if (scalar @testdatadir == scalar @networkdir){
@@ -339,14 +341,14 @@ if ($GENDATA || $SPLITDATA || $SYNWAVE || $CALRMSE){
     $i += 1;
     }
 }else{
-    print_time("Skip parameter generating");
+    print_time("------- 4 Skip parameter generating -------");
 }
 
 
 
 
 if($CALRMSE){
-    print_time("Calculating RMSE");
+    print_time("------- 5 Calculating RMSE -------");
     my $i=0;
     SelfSystem("mkdir ./tmp");
     SelfSystem("rm -f ./tmp/*");
@@ -392,7 +394,7 @@ if($CALRMSE){
 	}
     }
 }else{
-    print_time("Skip calculating RMSE");
+    print_time("------- 5 Skip calculating RMSE -------");
 }
 
 print_time(" --- All Done --- ");

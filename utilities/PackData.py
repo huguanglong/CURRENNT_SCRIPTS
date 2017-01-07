@@ -65,33 +65,38 @@ if __name__ == "__main__":
             normMethod =  None
         
     if step1==1:
-            filePtr2 = open(datascp, 'w') 
-            with open(filescp, 'r') as filePtr:
-                for idx, line in enumerate(filePtr):
-                    flagDataValid = True
-                    line = line.rstrip('\n')
+        print "===== Reading and loading data ====="
+        filePtr2 = open(datascp, 'w') 
+        with open(filescp, 'r') as filePtr:
+            for idx, line in enumerate(filePtr):
+                flagDataValid = True
+                line = line.rstrip('\n')
 
-                    if buff != '-':
-                        dataline = os.path.basename(line)
-                        dataline = re.sub(r'all.scp', r'data.nc', dataline)
-                        dataline = buff + os.path.sep + dataline
-                    else:
-                        dataline = re.sub(r'all.scp', r'data.nc', line)
-                    assert os.path.isfile(line), "Can't find %s" % (line)
+                if buff != '-':
+                    dataline = os.path.basename(line)
+                    dataline = re.sub(r'all.scp', r'data.nc', dataline)
+                    dataline = buff + os.path.sep + dataline
+                else:
+                    dataline = re.sub(r'all.scp', r'data.nc', line)
+                assert os.path.isfile(line), "Can't find %s" % (line)
 
-                    try:
-                        nc.bmat2nc(line, dataline, mask)
-                    except:
-                        print "Unexpected error:", sys.exc_info()[0]
-                        print traceback.extract_tb(sys.exc_info()[-1])
-                        raise Exception("*** Fail to pack data %s" % (line))
-                        flagDataValid = False
+                try:
+                    nc.bmat2nc(line, dataline, mask)
+                except:
+                    flagDataValid = False
+                    print "Unexpected error:", sys.exc_info()[0]
+                    print traceback.extract_tb(sys.exc_info()[-1])
+                    raise Exception("*** Fail to pack data %s" % (line))
+                
             
-                    if flagDataValid is True:
-                        filePtr2.write(dataline+'\n')
-            filePtr2.close()
-
+                if flagDataValid is True:
+                    filePtr2.write(dataline+'\n')
+        filePtr2.close()
+    else:
+        print "===== Skip reading and loading data ====="
+        
     if step2==1:
+        print "===== Calculating mean and variance ====="
         try:
             nc.meanStd(datascp, mv, normMethod)
         except:
@@ -101,9 +106,10 @@ if __name__ == "__main__":
             raise Exception("*** Fail to get mean and std. %s" % (line))
 
     else:
-        print "skip generating mv file"
+        print "===== Skip calculating mean and variance ====="
 
     if step3==1:
+        print "===== Normalize data.nc ====="
         assert os.path.isfile(mv), "*** Fail to locate %s" % (mv)
 
         with open(datascp, 'r') as filePtr:
@@ -119,4 +125,5 @@ if __name__ == "__main__":
                     raise Exception("*** Fail to norm %s" % (line))
                     flagDataValid = False
                     print "*** Not sure where %s is still valid" % (line) 
-
+    else:
+        print "===== skip Normalizing data.nc ====="            
