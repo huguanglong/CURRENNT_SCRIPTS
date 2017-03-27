@@ -1,5 +1,6 @@
 DATA:		path for training data
 TESTDATA:	path for test data
+AUXDATA:	path for auxillary data (linguistic boundary information)
 MODEL_***:	path for the model and generated data
 
 

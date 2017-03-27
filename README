@@ -106,7 +106,9 @@ And, the code may be dirty !
 			  ~$ cd EXAMPLE/MODEL_CLRNN_TOY
 			  ~$ sh 00_batch.sh
 			  
-
+   config_F0CLASS.pm   	  this script show the example on training the quantized F0 model		  
+   			  Please read EXAMPLE/MODEL_QUANF0/README for more details
+			  
 7 The example consists of several steps:
   7.1. packing the training data into netCDF (.nc) files
     1.1 built the .scp for each kind of input/output feature
