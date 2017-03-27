@@ -259,7 +259,7 @@ def PreProcess(tmp_inDim, tmp_outDim, tmp_inScpFile, tmp_outScpFile, tmp_inMask,
                 outScpFile.append(scpdir+ os.path.sep + tmp_outScpFile[index])
             tempLine    = "0 %d\n" % tmp_outDim[index]
             filePtr.write(tempLine)
-            validOutDim.append(tmp_OutDim[index])
+            validOutDim.append(tmp_outDim[index])
         else:
             assert len(fileMask)%2==0, "inMask should have even number of data"
             assert len(tmp_outScpFile)>0, "mask is used but no output file scp"

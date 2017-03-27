@@ -42,7 +42,7 @@ And, the code may be dirty !
 
 ---- For running the EXAMPLE:
 
-1. Aompile and add 'currennt' to your path. Check command below
+1. Compile and add 'currennt' to your path. Check command below
    terminal: ~$ currennt --list_devices 1
    
 2. Add PYTHONPATH to the python toolkit
