@@ -287,9 +287,9 @@ def normMaskGen(inDim, outDim, normMask):
     for idx, dim in enumerate(normMask):
         if len(dim)==2:
             # [start end] 
-            nS, nE = dim[0], dim[1]
-            assert nS>=dimS, "start of normMask smalled than feature dimension"
-            assert nE<=(dimS+dimAll[idx]), "end of normMask larger than feature dimension"
+            nS, nE = dim[0] + dimS, dim[1] + dimS
+            assert nS>=dimS, "Please check normMask, %s cannot be handled" % (str(dim))
+            assert nE<=(dimS+dimAll[idx]),"Please check normMask, %s cannot be handled" % (str(dim))
             dimVec[nS:nE] = 0
         elif len(dim)==1 and dim[0]==0:
             # [0] all to zero
@@ -304,7 +304,37 @@ def normMaskGen(inDim, outDim, normMask):
     funcs.write_raw_mat(dimVec, scpdir + os.path.sep + 'normMask')
     print "Writing norMask to %s " % (scpdir + os.path.sep + 'normMask')
 
+def normMaskGen(inDim, outDim, inNormMask, outNormMask, scpdir):
+    """ Generating the idx file for normalization method
+        input:  inNormIdx and outNormIdx: [normMethod, [parameter_1], ...]
+        output: 
+    """
+    inNormIdxData  = np.ones([sum(inDim)],  dtype=np.float32)
+    outNormIdxData = np.ones([sum(outDim)], dtype=np.float32)
+    
+    for configIn in inNormMask:
+        assert len(configIn)==2, 'inNormMask element should be [start_d, end_d] format'
+        assert configIn[0]>=0, 'start_d in inNormmask [start_d, end_d] is below 0'
+        assert configIn[0]<=sum(inDim), 'start_d in [start_d, ...] is larger than input dimension'
+        assert configIn[1]>=0, 'start_e in [start_d, end_d, h] is below 0'
+        assert configIn[1]<=sum(inDim), 'start_e in [start_d, ...] is larger than input dimension'
+        inNormIdxData[configIn[0]:configIn[1]] = 0
+        
 
+    for configIn in outNormMask:
+        assert len(configIn)==2, 'outNormMask element should be [start_d, end_d, h] format'
+        assert configIn[0]>=0, 'start_d in outNormMask [start_d, end_d, h] is below 0'
+        assert configIn[0]<=sum(outDim), 'start_d in [start_d, ...] is larger than output dim'
+        assert configIn[1]>=0, 'start_e in [start_d, end_d, h] is below 0'
+        assert configIn[1]<=sum(outDim), 'start_e in [start_d, ...] is larger than input dim'
+        outNormIdxData[configIn[0]:configIn[1]] = 0
+
+    normIdxData = np.append(inNormIdxData, outNormIdxData)
+    print normIdxData
+    print "Mask shape:"+str(normIdxData.shape)
+    funcs.write_raw_mat( normIdxData, scpdir + os.path.sep + 'normMask')
+    print "Writing norMask to %s " % (scpdir + os.path.sep + 'normMask')    
+    
 def normMethodGen(inDim, outDim, inNormIdx, outNormIdx, scpdir):
     """ Generating the idx file for normalization method
         input:  inNormIdx and outNormIdx: [normMethod, [parameter_1], ...]
@@ -326,7 +356,7 @@ def normMethodGen(inDim, outDim, inNormIdx, outNormIdx, scpdir):
             inNormIdxData[configIn[0]:configIn[1]] = configIn[2]
 
     for configIn in outNormIdx:
-        assert len(configIn)==3, 'inNormIdx element should be [start_d, end_d, h] format'
+        assert len(configIn)==3, 'outNormIdx element should be [start_d, end_d, h] format'
         assert configIn[0]>=0, 'start_d in [start_d, end_d, h] is below 0'
         assert configIn[0]<=sum(outDim), 'start_d in [start_d, ...] is larger than output dim'
         assert configIn[1]>=0, 'start_e in [start_d, end_d, h] is below 0'
@@ -368,6 +398,17 @@ if __name__ == "__main__":
     if 'normMask' in dir(cfg):
         print "Generating normMask"
         normMaskGen(valInDim, valOutDim, cfg.normMask)
+    elif 'outNormMask' in dir(cfg) or 'inNormMask' in dir(cfg):
+        print "Generating normmask"
+        if not 'inNormMask' in dir(cfg):
+            inNormMask = []
+        else:
+            inNormMask = cfg.inNormMask
+        if not 'outNormMask' in dir(cfg):
+            outNormMask = []
+        else:
+            outNormMask = cfg.outNormMask
+        normMaskGen(valInDim, valOutDim, inNormMask, outNormMask, scpdir)
     else:
         print "No normMask configuration"
         if os.path.isfile("./normMask"):
