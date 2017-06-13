@@ -16,7 +16,7 @@ except ImportError:
         try: 
             from ioTools import readwrite as funcs
         finally:
-            print "Please add ~/CODE/pyTools to PYTHONPATH"
+            print "Please add the path of pyTools to PYTHONPATH"
             raise Exception("Can't not import binaryTools/readwriteC2 or funcs")
 
 sys.path.append(os.path.dirname(sys.argv[1]))

@@ -52,21 +52,22 @@ if ($TRAINSYS){
 	    SelfSystem("rm -f $prj/config.cfg");
 	    SelfSystem("rm -f $prj/network.jsn");
 	}
-	if (-e "$prj/config.cfg" && -e "$prj/network.jsn"){
+	if (-e "$prj/config.cfg"){
 	    chdir($prj);
 	    print `pwd`;
 	    SelfSystem("cat ./config.cfg");
-	    print "\tPlease wait for several minutes.\n\t use nvidia-smi to inspect the activity of GPU\n";
+	    print "\n\tPlease wait for several minutes.\n";
 	    SelfSystem("$currennt --options_file config.cfg > log_train 2>&1");
 	    print "\n-------------------- CURRENNNT training log ----------------\n";
 	    SelfSystem("cat ./log_train");
 	    print "------------------------------------------------------------\n";
 	    chdir($curdir);
 	}else{
-	    SelfSystem("python 02_prepare_model.py $prj $buffdir[$j]");
-	    print "Please cd $prj\n";
-	    print "  modify the $prj/config.cfg_tmp \n  and $prj/network.jsn_tmp\n";
-	    print "  then change the name (delete _tmp) and run again\n";
+	    die "Can't find config.cfg in $prj\n";
+	    #SelfSystem("python 02_prepare_model.py $prj $buffdir[$j]");
+	    #print "Please cd $prj\n";
+	    #print "  modify the $prj/config.cfg_tmp \n  and $prj/network.jsn_tmp\n";
+	    #print "  then change the name (delete _tmp) and run again\n";
 	}
 	$j += 1;
     }

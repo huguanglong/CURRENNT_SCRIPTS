@@ -83,7 +83,7 @@ if ($GENDATA && $fgendata){
     if ($mdnp ne "NONE"){
 	$command = "$command --mdn_samplePara $mdnp";
     }
-    
+    print "\n$command\n";
     SelfSystem($command);
     print "--------------------------------------------------------------\n";
     chdir($curdir);

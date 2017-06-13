@@ -30,7 +30,7 @@ import re, sys, os, traceback
 try:
     from dataTools import ncDataHandle as nc
 except ImportError:
-    raise Exception("*** Add ~/CODE/pyTools to PYTHONPATH")
+    raise Exception("*** Add the path of pyTools to PYTHONPATH ")
     
 if __name__ == "__main__":
     filescp = sys.argv[1]

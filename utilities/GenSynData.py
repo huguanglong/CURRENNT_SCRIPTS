@@ -14,7 +14,7 @@ except ImportError:
         try:
             from ioTools import readwrite as funcs
         except:
-            assert 1==0,"Can't find ioTools, please add ~/CODE/pyTools to PYTHONPATH"
+            assert 1==0,"Can't find ioTools, please add path of pyTools to PYTHONPATH"
 
 from speechTools import discreteF0 as f0funcs
             
