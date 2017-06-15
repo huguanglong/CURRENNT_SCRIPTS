@@ -27,16 +27,15 @@ outScpFile = []                             # MUST be empty for output
 inScpFile = ['lab.scp',]                    # name of each scp for each input features (a list)
 
 
-# Configuration for data generation method
-#   This is only used for MLPG algorithm in speech synthesis task
-#   set it to [1, 1, ...] if you don't know about MLPG
-#
+# Configuration for data generation method#
 #   for test set, specify the outputName of each output feature file
 outputName = ['mgc_delta', 'vuv', 'lf0_delta', 'bap_delta']
 #   whether each output stream has delta component
 #   3: use static, delta-delta and delta
 #   2: use static, delta
-#   1: use static 
+#   1: use static
+#   This is only used for MLPG algorithm in speech synthesis task
+#   set it to [1, 1, ...] if you don't know about MLPG
 outputDelta= [3, 1, 3, 3]
 
 # Feature Mask:
