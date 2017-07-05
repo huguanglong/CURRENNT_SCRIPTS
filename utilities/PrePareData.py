@@ -274,7 +274,7 @@ def PreProcess(tmp_inDim, tmp_outDim, tmp_inScpFile, tmp_outScpFile, tmp_inMask,
 
 
 
-def normMaskGen(inDim, outDim, normMask):
+def normMaskGen1(inDim, outDim, normMask):
     """ Generating the normMask for packaging the data
     """
     assert len(inDim)+len(outDim)==len(normMask), "Unequal length normMask and inDim outDim"
@@ -304,7 +304,7 @@ def normMaskGen(inDim, outDim, normMask):
     funcs.write_raw_mat(dimVec, scpdir + os.path.sep + 'normMask')
     print "Writing norMask to %s " % (scpdir + os.path.sep + 'normMask')
 
-def normMaskGen(inDim, outDim, inNormMask, outNormMask, scpdir):
+def normMaskGen2(inDim, outDim, inNormMask, outNormMask, scpdir):
     """ Generating the idx file for normalization method
         input:  inNormIdx and outNormIdx: [normMethod, [parameter_1], ...]
         output: 
@@ -397,7 +397,7 @@ if __name__ == "__main__":
     # Generating the normlization mask file
     if 'normMask' in dir(cfg):
         print "Generating normMask"
-        normMaskGen(valInDim, valOutDim, cfg.normMask)
+        normMaskGen1(valInDim, valOutDim, cfg.normMask)
     elif 'outNormMask' in dir(cfg) or 'inNormMask' in dir(cfg):
         print "Generating normmask"
         if not 'inNormMask' in dir(cfg):
@@ -408,7 +408,7 @@ if __name__ == "__main__":
             outNormMask = []
         else:
             outNormMask = cfg.outNormMask
-        normMaskGen(valInDim, valOutDim, inNormMask, outNormMask, scpdir)
+        normMaskGen2(valInDim, valOutDim, inNormMask, outNormMask, scpdir)
     else:
         print "No normMask configuration"
         if os.path.isfile("./normMask"):
