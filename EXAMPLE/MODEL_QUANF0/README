@@ -1,5 +1,8 @@
 ####
-This is the example folder for quantized F0 model
+This is the example folder for quantized F0 model. 
+
+For the configuration files for both training and generation that I used on
+the Japanese corpus, please check ./config_pool_F009.
 
 To translate this example to your data:
 1. Prepare the quantized F0 data
