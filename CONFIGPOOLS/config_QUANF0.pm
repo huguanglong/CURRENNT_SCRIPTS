@@ -27,9 +27,6 @@ my $DEMOROOT = sprintf("%s/EXAMPLE",getcwd);
 $CONFIG_ADDINFO = "Ignore the synthetic waveforms";
 $CONFIG_ADDINFO = "$CONFIG_ADDINFO\n This script is only for testing";
 $CONFIG_ADDINFO = "$CONFIG_ADDINFO\n Use more data for speech synthesis";
-$CONFIG_ADDINFO = "$CONFIG_ADDINFO\n =====";
-$CONFIG_ADDINFO = "$CONFIG_ADDINFO\n Please set \@mdnGenPara = (1.0) to generate F0 from softmax";
-$CONFIG_ADDINFO = "$CONFIG_ADDINFO\n =====";
 # ------------------------------------------------
 
 ################################################################
@@ -322,10 +319,11 @@ $LabEscape      = "\\\\-#\\\\+";
 sub SelfSystem($) {
     my ($commandline) = @_;
     if ($DEBUG) {
+	print "COMMANDLINE: $commandline\n\n";
         print "$commandline\n";
     }
     else {
-	print "$commandline\n";
+	print "COMMANDLINE: $commandline\n\n";
         system($commandline);
     }
 }

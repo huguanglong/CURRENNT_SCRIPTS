@@ -60,7 +60,7 @@ $GENDATA   = 1;
 $SPLITDATA = 1;
 # generate the final acoustic features
 #   MLPG is conducted in this step.
-$SYNWAVE   = 0;						
+$SYNWAVE   = 0;		
 
 # ------- step5. Calculating RMSE ----------------
 # Whether to calculate RMSE?
@@ -78,14 +78,14 @@ $CALRMSE = 0;
 
 # -- input and outputs
 # directory for *.scp, data_config.py and all.scp 
-@datadir = ("$DEMOROOT/DATA");
+@datadir = ("$DEMOROOT/DATA_WAVENET");
 
 # where the model will be put? 
-@sysdir  = ("$DEMOROOT/MODEL_DNN_WEIGHT");
+@sysdir  = ("$DEMOROOT/MODEL_WAVENET");
 
 # directory to store generated data.nc* (data.mv will be in @datadir)
 #   using local disk to generate data.nc*, or it will be slow
-@buffdir = ("$DEMOROOT/DATA");
+@buffdir = ("$DEMOROOT/DATA_WAVENET");
 
 # -- configs
 # path to the bmat2nc (set $dataPack if you don't want to use $bmat2nc)
@@ -116,7 +116,7 @@ $dataPack = "./utilities/PackData.py";
 $useOldConfig = 1; 
 
 # path to the current tool
-$currennt = "currennt"; 
+$currennt = "/work/smg/wang/TEMP/code/CURRENNT/CURRENNT_0405/build_cuda9/currennt"; 
 # ------------------------------------------------
 
 
@@ -130,15 +130,15 @@ $currennt = "currennt";
 
 ## -- input and output
 # where is the data_config.py for test data ?
-@testdatadir = ("$DEMOROOT/TESTDATA");
+@testdatadir = ("$DEMOROOT/TESTDATA_WAVENET");
 
 # whereis the mean variance file (data.mv from step1)
 #   it should be in 
-@mvpath = ("$DEMOROOT/DATA/data.mv");
+@mvpath      = ("$DEMOROOT/DATA_WAVENET/data.mv");
 
 # directory to store generated data.nc* (data.mv will be in @datadir)
 #   using local disk to generate data.nc*, or it will be slow
-@testbuffdir = ("$DEMOROOT/TESTDATA");
+@testbuffdir = ("$DEMOROOT/TESTDATA_WAVENET");
 
 
 # -- configs
@@ -187,24 +187,22 @@ $currennt = "currennt";
 # $weExt 1/0, turn on this part 
 # @weFlag, (1/0, 1/0), specify the flag for each @sysdir
 $weExt    = 0;
-@weFlag   = (1); 
+@weFlag   = (0); 
 
 # @wedir, array of paths to the external we vectors for each @sysdir
 #    the length of $wedir[$i] should be equal to $networkdir[$i]
-#
-@wedir4 = dupVec("word_projections-80.bin", 5);
-@wedir    = (\@wedir1); 
+@wedir    = (); 
 
 # weDim, the dimension of the we vector
-$weDim    = 80;
+$weDim    = -1;
 # weIDDim, which dimension is the we index in input data?
-$weIDDim  = 295;
+$weIDDim  = -1;
 
 ## -- get intermediate output                                                        
 # tap output from intermediate layer?                                                
 $tapOutput = 0;    # 0: not use this tapOutput
-@tapLayer  = (0);  # output from which layer, scalar @tapLayer = scalar @networkdir 
-@tapGate   = ('true'); # output from gate (skipppara) ? 
+@tapLayer  = ();  # output from which layer, scalar @tapLayer = scalar @networkdir 
+@tapGate   = (); # output from gate (skipppara) ? 
 
 
 ## -- MDN generation configuration
@@ -213,8 +211,9 @@ $tapOutput = 0;    # 0: not use this tapOutput
 #   >0:  sampling from distribution with variance scaled by the parameter
 #   -1.0:generating the MDN parameters 
 # Note, the length of @mdnGenPara should be identical to @networkdir
-# Example: @mdnGenPara  = (0.001, 0.01); 
-@mdnGenPara  = (); 
+# Example: @mdnGenPara  = (0.001, 0.01);
+# 
+@mdnGenPara  = (1.0); 
 
 ## -- use mvPath
 # The default is that testdata.nc will include mean and variance
@@ -320,7 +319,8 @@ $LabEscape      = "\\\\-#\\\\+";
 sub SelfSystem($) {
     my ($commandline) = @_;
     if ($DEBUG) {
-        print "COMMANDLINE: $commandline\n\n";
+	print "COMMANDLINE: $commandline\n\n";
+        print "$commandline\n";
     }
     else {
 	print "COMMANDLINE: $commandline\n\n";
@@ -342,7 +342,7 @@ sub print_time ($) {
     print "\n$ruler\n";
     print "@_ at " . `date`;
     print "$ruler\n\n";
-		}
+}
 
 sub dupVec(){
     my ($ele, $time) = @_;

@@ -266,7 +266,7 @@ $genWav    = 0;
 # whether to utilize MLPG?
 #   if not, please configure outputDelta in data_config.py 
 #   of the testset directory
-$mlpgFlag  = 1;						
+$mlpgFlag  = 0;						
 
 # directly re-construct wave without generating parameter?
 #   set $onlywav=1 if you are sure parameters for waveform 
@@ -328,10 +328,10 @@ $LabEscape      = "\\\\-#\\\\+";
 sub SelfSystem($) {
     my ($commandline) = @_;
     if ($DEBUG) {
-        print "\n$commandline\n";
+        print "COMMANDLINE: $commandline\n\n";
     }
     else {
-	print "\n$commandline\n";
+	print "COMMANDLINE: $commandline\n\n";
         system($commandline);
     }
 }
