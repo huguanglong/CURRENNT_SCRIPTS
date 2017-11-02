@@ -56,7 +56,7 @@ if ($TRAINSYS){
 	    chdir($prj);
 	    print `pwd`;
 	    SelfSystem("cat ./config.cfg");
-	    print "\n\tModel training. Please wait for several minutes. \n"
+	    print "\n\tModel training. Please wait for several minutes. \n";
 	    SelfSystem("$currennt --options_file config.cfg > log_train 2>&1");
 	    print "\n-------------------- CURRENNNT training log ----------------\n";
 	    SelfSystem("cat ./log_train");
