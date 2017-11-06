@@ -40,6 +40,7 @@ def f0Conversion(dataOut, outname):
     fileBase, fileExt = os.path.splitext(fileName)
     if fileExt == '.lf0':
         f0Max, f0Min, f0Levels, f0Interpolated   = cfg.f0Info
+        defaultOutput(dataOut, fileDir + os.path.sep + fileBase + '.qf0')
         dataOut, vuv = f0funcs.f0Conversion(dataOut, f0Max, f0Min, f0Levels, 'd2c', f0Interpolated)
         if f0Interpolated:
             vuvFile  = fileDir + os.path.sep + fileBase + '.vuv'
