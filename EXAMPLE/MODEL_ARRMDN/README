@@ -70,14 +70,52 @@ Usage:
 	   # 0: don't care about the U/V
 	   # 3: use 2-order AR for F0 (the number 2 is reserved for another option)
 	   # 0: don't care about the BAP
-	   # I only implemented the 1-order and 2-order AR
 	   mdnDyn               = 1030
+
 	   # turn on the tanh function to ensure the stability of the AR filter
 	   tanhAutoReg          = 1
 
 	   in config_syn.cfg
 	   # this options should also be provided
 	   tanhAutoReg          = 1
+	   
+ 	6. More on the filters:
+	   the new CURRENNT can support high order AR, but you need to select the 
+	   implementation methods.
+	   	   
+	   How to select high order AR ? Just increase the number in mdnDyn:
+	   1: use 1-order AR
+	   3: use 2-order AR 
+	   8: use 3-order AR
+	   9: use 4-order AR
+	   ...
+	   N: use N-3 order AR
+	   If the number is > 10, mdnDyn should be specified in this way: mdnDyn = 1_0_11_0.
+	   In this case, I use 1-order AR for MGC, and 8(=11-3)-order AR for F0.
+	   Note that both 1030 and 1_0_3_0 works for small digits.
+	   	   
+
+	   What's the implementation methods? It decides the method to ensure the
+	   stability of the AR filter (please check the slides for the SAR papar). 
+	   We can allow the filter to stable while have complex or real zeros/poles. These
+	   can be implemented by using several tricks. 
+	   (please check the slides about MDN in http://tonywangx.github.io/slides.html).
+	   Anyway, we can specify the methods by setting tanhAutoReg
+
+	   tanhAutoReg = 0  # (default) no guanratee on the stability for all AR GMMs
+	   tanhAutoReg = 1  # all AR GMMS will be stable but only use real-valued zeros/poles
+	   
+	   If the order of AR is > 3, we use enable the filtes to have complex-valued zeros/poles.
+	   tanhAutoReg = 1020 # use the real-valued zeros/poles for the GMM of MGC
+	   	       	      # but use complex-valued zeros/poles for the GMM of F0
+	   As you may noticed, the implementaion methods can be specified for each AR GMM. It will
+	   be ignored for none GMM density functions.
 
 
-	   I only train ARRMDN for 1-2 epochs.
+Tips:
+	1. Normally, I only train ARRMDN for 1-5 epochs since I always train the network
+	   after initializing it using RMDN.
+	
+
+
+	   
