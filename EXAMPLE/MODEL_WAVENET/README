@@ -9,6 +9,8 @@ data_mgcf0.mv.bin     mean and std vector to normalize the conditional acoustic 
 
 
 Note:
+0. Python scripts to extract the mu-law waveform and label index is in ../DATA_WAVENET/scripts
+
 1. If conditional acoustic features specified in config.cfg are not normalized,
    they can be normalized during the training. To do this, a vector of mean and std
    must be provided to the network, which is data_mgcf0.mv.bin in this case

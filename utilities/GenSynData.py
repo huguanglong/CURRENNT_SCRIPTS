@@ -58,7 +58,8 @@ def f0Conversion(dataOut, outname):
 
 def SplitData(fileScp,      fileDir2,   fileDir, 
               outputName,   outDim,     outputDelta, 
-              flagUseDelta, datamv,     outputMethod,
+              flagUseDelta, datamv,     normMask,
+              outputMethod,
               stdT=0.000001):
     """ Split the generated HTK into acoustic features
     """
@@ -67,11 +68,21 @@ def SplitData(fileScp,      fileDir2,   fileDir,
     
     if len(datamv) > 0 and os.path.isfile(datamv):
         print "External Mean Variance file will be used to de-normalize the data"
-        datamv    = io.netcdf_file(datamv)
-        m         = datamv.variables['outputMeans'][:].copy()
-        v         = datamv.variables['outputStdevs'][:].copy()
+        try:
+            datamv    = io.netcdf_file(datamv)
+            m         = datamv.variables['outputMeans'][:].copy()
+            v         = datamv.variables['outputStdevs'][:].copy()
+            assert m.shape[0]==sum(outDim), "Incompatible dimension"
+        except TypeError:
+            datamv    = funcs.read_raw_mat(datamv, 1)
+            assert datamv.shape[0] == sum(outDim)*2, 'Dim of datamv is invalid'
+            m         = datamv[0:sum(outDim)]
+            v         = datamv[sum(outDim):sum(outDim)*2]
         v[v<stdT] = 1.0
-        assert m.shape[0]==sum(outDim), "Incompatible dimension"
+        if normMask is not None:
+            assert normMask.shape[0] == m.shape[0], 'normMask dimension invalid'
+            m = m * normMask
+            v = v ** normMask
     else:
         m = np.zeros([sum(outDim)])
         v = np.ones([sum(outDim)])
@@ -109,6 +120,34 @@ def SplitData(fileScp,      fileDir2,   fileDir,
             
     filePtr.close()
 
+def normMaskGen1(inDim, outDim, normMask):
+    """ Generating the normMask for packaging the data
+    """
+    assert len(inDim)+len(outDim)==len(normMask), "Unequal length normMask and inDim outDim"
+    inDim = np.array(inDim)
+    outDim = np.array(outDim)
+    dimAll = np.concatenate((inDim, outDim))
+    
+    dimVec = np.ones([dimAll.sum()])
+    dimS = 0
+    for idx, dim in enumerate(normMask):
+        if len(dim)==2:
+            # [start end] 
+            nS, nE = dim[0] + dimS, dim[1] + dimS
+            assert nS>=dimS, "Please check normMask, %s cannot be handled" % (str(dim))
+            assert nE<=(dimS+dimAll[idx]),"Please check normMask, %s cannot be handled" % (str(dim))
+            dimVec[nS:nE] = 0
+        elif len(dim)==1 and dim[0]==0:
+            # [0] all to zero
+            dimVec[dimS:(dimS+dimAll[idx])] = 0
+        else:
+            # nothing []
+            pass
+        dimS = dimS + dimAll[idx]
+    
+    return dimVec[inDim.sum():]
+
+
 if __name__ == "__main__":
     """ Split the generated .htk into multiple files
     """
@@ -144,6 +183,14 @@ if __name__ == "__main__":
                 tempoutDim.append(dim[1] - dim[0])
         if len(tempoutDim)>0:
             outDim = tempoutDim
+            
+
+    # Generating the normlization mask file
+    if 'normMask' in dir(cfg):
+        print "Generating normMask"
+        normMask = normMaskGen1(cfg.inDim, cfg.outDim, cfg.normMask)
+    else:
+        normMask = None
                 
     datamv = sys.argv[5]
     assert os.path.isdir(fileDir), "Cannot not find " + fileDir
@@ -153,4 +200,4 @@ if __name__ == "__main__":
     assert len(outDim)==len(outputDelta),"Config error: outDim outputDelta dimension mismatch"
     
     SplitData(files, fileDir2, fileDir, outputName, 
-              outDim, outputDelta, flagUseDelta, datamv, outputMethod)
+              outDim, outputDelta, flagUseDelta, datamv, normMask, outputMethod)

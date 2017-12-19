@@ -59,13 +59,19 @@ And, the code may be dirty !
    ~$ ls
    000_PRE.pl  01_prepare_train_data.pl  04_synwav.pl   CONFIGPOOLS  README    showData.pl  tmp
    001_RUN.pl  03_prepare_test_data.pl   05_calRMSE.pl  EXAMPLE      clean.sh  template     utilities
-
+   
 3. Add PYTHONPATH to the python toolkit
    ~$ export PYTHONPATH=PATH_TO_PYTOOLS:$PYTHONPATH
    
 4. Select one example configuration and run
    ~$ perl 001_RUN.pl CONFIGPOOLS/config_***.pm
   
+   Alternatively, there is a simplified script to run the example
+   ~$ cd SCRIPTS_SIMPLE
+   ~$ sh 01_DNN.sh
+   I will add more scripts for other examples. But this simplified script can cover most of
+   the examples.
+
 5. Check the printed information on the screen (several pages). You should see this at last:
    
    """
@@ -106,7 +112,6 @@ And, the code may be dirty !
    config_syn.cfg  epoch002.autosave  epoch004.autosave  log_train          output_trained_network
    
    If you find any problem or error, please email me.
-
 
 7. List of examples in CONFIGPOOLS:
    
