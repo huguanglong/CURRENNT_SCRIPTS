@@ -26,7 +26,44 @@ And, the code may be dirty !
 1. CURRENNT ToolKit, the modified version
    It requires: 
    1.1 netcdf http://www.unidata.ucar.edu/software/netcdf/
+       The version I use is 4.3.3.1.
+       The scripts use python/scipy.netCDF to package data. For compatiblity,
+       please configure netCDF by "./configure --disable-netcdf-4 ...". 
+
+       After compiling, nc-config can be used to print the configuration of netCDF.
+
+       wang@gpu13:/work/smg/wang/TOOL/bin/netcdf_220/bin$ ./nc-config --all
+       This netCDF 4.3.3.1 has been built with the following features: 
+
+        --cc        -> gcc
+	--cflags    ->  -I/home/smg/wang/TOOL/bin/netcdf_220/include 
+	--libs      -> -L/home/smg/wang/TOOL/bin/netcdf_220/lib -lnetcdf
+
+	--has-c++   -> no
+ 	--cxx       -> 
+ 	--has-c++4  -> no
+ 	--cxx4      -> 
+
+ 	--fc        -> 
+ 	--fflags    -> 
+ 	--flibs     -> 
+ 	--has-f90   -> no
+
+ 	--has-dap   -> yes
+ 	--has-nc2   -> yes
+ 	--has-nc4   -> no
+	--has-hdf5  -> no
+ 	--has-hdf4  -> no
+ 	--has-pnetcdf-> no
+
+ 	--prefix    -> /home/smg/wang/TOOL/bin/netcdf_220
+ 	--includedir-> /home/smg/wang/TOOL/bin/netcdf_220/include
+ 	--version   -> netCDF 4.3.3.1
+       
    1.2 Boost  (headers and compiled library) http://www.boost.org
+       The version I use is boost_1_59_0. Just follow the CURRENNT/README to
+       compile Boost
+
    1.3 CUDA > 6.5
        The modified CURRENNT can be compiled with CUDA7.0, 8.0 and 9.0.
        If you are using the original CURRENNT, please check 
@@ -34,6 +71,7 @@ And, the code may be dirty !
        http://sourceforge.net/p/currennt/discussion/general/thread/e10ef414/)
    ...
    Please follow the CURRENNT/README instruction to install CURRENNT.
+      
 
 2. A small Python toolkit (pyTools) from my github
    This toolkit requires
